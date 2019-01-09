@@ -1,0 +1,10 @@
+{
+  "name": "Blocos, descentralized crowdfunding",
+  "start_url": "localhost:8000",
+  "description": "A descentralized crowdfunding platform",
+  "icons": [{
+    "src": "https://helloblockstack.com/icon-192x192.png",
+    "sizes": "192x192",
+    "type": "image/png"
+  }]
+}
