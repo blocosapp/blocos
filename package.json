@@ -1,0 +1,34 @@
+{
+  "name": "blocos",
+  "version": "0.0.1",
+  "description": "descentralized crowdfunding",
+  "main": "js/index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blocosapp/blocos.git"
+  },
+  "keywords": [
+    "descentralized",
+    "elm",
+    "crowdfunding",
+    "bitcoin"
+  ],
+  "author": "Vinícius Andrade <vini.andrade.dev@gmail.com>",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/blocosapp/blocos/issues"
+  },
+  "homepage": "https://github.com/blocosapp/blocos#readme",
+  "dependencies": {
+    "blockstack": "^18.1.0",
+    "nodemon": "^1.18.9",
+    "sass": "^1.15.2",
+    "webpack": "^4.27.1"
+  },
+  "devDependencies": {
+    "webpack-cli": "^3.1.2"
+  }
+}
