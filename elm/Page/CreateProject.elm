@@ -1,9 +1,9 @@
-module Page.CreateProject exposing (Msg, route, title, view)
+module Page.CreateProject exposing (Msg, emptyProject, route, title, view)
 
 import Browser
-import Html exposing (Html, button, p, section, text)
-import Html.Attributes exposing (class)
-import Html.Events exposing (onClick)
+import Html
+import Html.Attributes as Attributes
+import Html.Events as Events
 import Json.Encode as Encode exposing (..)
 import Session
 import Url.Builder
@@ -23,8 +23,20 @@ type Msg
     = Nothing
 
 
-view : Session.User -> Html Msg
-view user =
+type alias Project =
+    { title : String
+    , description : String
+    , imageUri : String
+    }
+
+
+emptyProject : Project
+emptyProject =
+    { title = "", description = "", imageUri = "" }
+
+
+view : Session.User -> Project -> Html.Html Msg
+view user project =
     let
         username =
             case user of
@@ -34,6 +46,11 @@ view user =
                 _ ->
                     "Anonymous"
     in
-    section []
-        [ p [ class "text" ] [ text "Create your new project" ]
+    Html.section []
+        [ Html.p [ Attributes.class "text" ] [ Html.text "Create your new project" ]
+        , Html.form [ Attributes.class "form form-project", Attributes.action "#" ]
+            [ Html.input [ Attributes.class "input", Attributes.type_ "text", Attributes.value project.description, Attributes.placeholder "Project title" ] []
+            , Html.textarea [ Attributes.class "textarea" ] [ Html.text project.description ]
+            , Html.input [ Attributes.class "submit", Attributes.type_ "submit", Attributes.value "Save" ] []
+            ]
         ]

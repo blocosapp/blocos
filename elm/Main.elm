@@ -93,7 +93,7 @@ view model =
 
                 Router.CreateProject ->
                     { title = CreateProject.title
-                    , body = Skeleton.application CreateProjectMsg SessionMsg <| CreateProject.view model.user
+                    , body = Skeleton.application CreateProjectMsg SessionMsg <| CreateProject.view model.user CreateProject.emptyProject
                     }
 
                 _ ->
