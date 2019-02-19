@@ -1,0 +1,24 @@
+# Create Project
+## To-Do
+  - Add typescript
+  - Add linting
+  - Add tests
+  - CI
+  - ProjectSave should save to remote storage also, and redirect after. Do it async? How the UI would look like?
+  - Add loading state to project save
+  - Add loading state to login (?)
+  - Add listProject subscription optimistic UI
+  - [FIX] Erase project description on save
+  - Handle price estimation
+  - Create project wallet
+  - View project
+  - Bake project
+  - List backed projects
+  - List public backed projects on the homepage
+  - _Implement an all-or-nothing logic_
+  - Proof of running code
+  - Docker container
+  - DO setup + DNS
+  - Setup e-mail
+  - Deploy to production
+  - Setup cache
