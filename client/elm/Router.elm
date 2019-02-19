@@ -1,10 +1,10 @@
 module Router exposing (Page(..), route, toRoute)
 
-import Page.CreateProject as CreateProject
 import Page.Dashboard as Dashboard
 import Page.Home as Home
 import Page.NotFound as NotFound
 import Page.Proof as Proof
+import Project
 import Url
 import Url.Parser as Parser exposing ((</>))
 

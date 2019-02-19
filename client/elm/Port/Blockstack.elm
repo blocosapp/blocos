@@ -1,4 +1,4 @@
-port module Port.Blockstack exposing (authenticate, authenticated, checkAuthentication, signOut)
+port module Port.Blockstack exposing (authenticate, authenticated, checkAuthentication, putFile, signOut)
 
 import Json.Encode as E
 
@@ -7,6 +7,9 @@ port authenticate : () -> Cmd msg
 
 
 port signOut : () -> Cmd msg
+
+
+port putFile : E.Value -> Cmd msg
 
 
 port checkAuthentication : () -> Cmd msg

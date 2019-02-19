@@ -3,7 +3,7 @@ module Session exposing (Msg(..), Session(..), User, UserData, subscriptions, up
 import Browser.Navigation as Nav
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Port.Blockstack as Blockstack exposing (..)
+import Port.Blockstack as Blockstack
 import Url.Builder
 
 
@@ -13,8 +13,7 @@ type Session
 
 
 type alias UserData =
-    { username : String
-    }
+    { username : String }
 
 
 type alias User =
@@ -44,11 +43,8 @@ decodeUser value =
 
 userDataDecoder : Decode.Decoder UserData
 userDataDecoder =
-    let
-        usernameData =
-            Decode.field "username" Decode.string
-    in
-    Decode.map UserData usernameData
+    Decode.map UserData
+        (Decode.field "username" Decode.string)
 
 
 subscriptions : User -> Sub Msg

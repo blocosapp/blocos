@@ -5,7 +5,8 @@ import Html
 import Html.Attributes as Attributes
 import Html.Events exposing (onClick)
 import Json.Encode as Encode exposing (..)
-import Page.CreateProject as CreateProject
+import List
+import Project
 import Session
 import Url.Builder
 
@@ -29,8 +30,8 @@ type Msg
     = Nothing
 
 
-view : Session.User -> Html.Html Msg
-view user =
+view : Session.User -> Project.Model -> Html.Html Msg
+view user ( project, projects, _ ) =
     let
         username =
             case user of
@@ -42,5 +43,7 @@ view user =
     in
     Html.section [ Attributes.class "home content" ]
         [ Html.p [ Attributes.class "text" ] [ Html.text username ]
-        , Html.a [ Attributes.class "link", Attributes.href <| CreateProject.route ] [ Html.text "+ create new project" ]
+        , Html.a [ Attributes.class "link", Attributes.href <| Project.createProjectRoute ] [ Html.text "+ create new project" ]
+        , Html.h2 [ Attributes.class "subtitle" ] [ Html.text "Drafts" ]
+        , Html.div [] (List.map (\projectItem -> Html.a [ Attributes.class "link" ] [ Html.text projectItem.description ]) projects)
         ]

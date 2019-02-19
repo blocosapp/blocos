@@ -5,12 +5,13 @@ import Browser.Navigation as Nav
 import Html exposing (Html, a, button, footer, h1, header, main_, map, p, section, text)
 import Html.Attributes exposing (class, href, target)
 import Html.Events exposing (onClick)
-import Page.CreateProject as CreateProject
 import Page.Dashboard as Dashboard
 import Page.Home as Home
 import Page.NotFound as NotFound
 import Page.Proof as Proof
 import Port.Blockstack as Blockstack
+import Project
+import Random.Pcg.Extended exposing (initialSeed)
 import Router
 import Session
 import Skeleton
@@ -37,18 +38,19 @@ main =
 
 
 type alias Model =
-    { page : Router.Page, key : Nav.Key, user : Session.User }
+    { page : Router.Page, key : Nav.Key, user : Session.User, projects : Project.Model }
 
 
 
 -- @TODO: check authentication throwing command on init
 
 
-init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
-init _ url navKey =
+init : ( Int, List Int ) -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init ( seed, seedExtension ) url navKey =
     ( { key = navKey
       , page = Router.toRoute (Url.toString url)
-      , user = ( Session.LoggedIn, Just { username = "init" } )
+      , user = ( Session.Anonymous, Nothing )
+      , projects = ( Project.emptyProject, [], initialSeed seed seedExtension )
       }
     , Cmd.none
     )
@@ -68,7 +70,9 @@ currentChecksum =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.map Forward <| Sub.map SessionMsg <| Session.subscriptions model.user
+    Session.subscriptions model.user
+        |> Sub.map SessionMsg
+        |> Sub.map Forward
 
 
 view : Model -> Browser.Document Msg
@@ -88,12 +92,12 @@ view model =
 
                 Router.Dashboard ->
                     { title = Dashboard.title
-                    , body = Skeleton.application DashboardMsg SessionMsg <| Dashboard.view model.user
+                    , body = Skeleton.application DashboardMsg SessionMsg <| Dashboard.view model.user model.projects
                     }
 
                 Router.CreateProject ->
-                    { title = CreateProject.title
-                    , body = Skeleton.application CreateProjectMsg SessionMsg <| CreateProject.view model.user CreateProject.emptyProject
+                    { title = Project.createProjectTitle
+                    , body = Skeleton.application ProjectMsg SessionMsg <| Project.createProjectView model.user model.projects
                     }
 
                 _ ->
@@ -113,7 +117,7 @@ type ProxyMsg
     = SessionMsg Session.Msg
     | ProofMsg Proof.Msg
     | DashboardMsg Dashboard.Msg
-    | CreateProjectMsg CreateProject.Msg
+    | ProjectMsg Project.Msg
     | NotFoundMsg NotFound.Msg
 
 
@@ -126,6 +130,13 @@ proxyMsg msg model =
                     Session.update sessionMsg ( model.user, model.key )
             in
             ( { model | user = sessionUser }, Cmd.map Forward <| Cmd.map SessionMsg sessionCmds )
+
+        ProjectMsg projectMsg ->
+            let
+                ( newProjects, projectCmds ) =
+                    Project.update projectMsg model.projects
+            in
+            ( { model | projects = newProjects }, Cmd.map Forward <| Cmd.map ProjectMsg projectCmds )
 
         _ ->
             ( model, Cmd.none )
