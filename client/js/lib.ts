@@ -3,17 +3,17 @@ import { Elm } from '../elm/Main'
 
 // CRYPTO
 const { crypto } = window
-const getRandomInts = (n: number) => {
+const getRandomInts = (n: number): number[] => {
   const randInts = new Uint32Array(n)
   crypto.getRandomValues(randInts)
   return Array.from(randInts)
 }
 
 // FLAG GENERATION
-// const randInts = getRandomInts(5);
-// const flags = [randInts[0], randInts.slice(1)]
-const flags: [number, number[]] = [0, [1, 2, 3]]
-const app = Elm.Main.init({ flags })
+const seeds = getRandomInts(5)
+const flags: [number, number[]] = [seeds[0], seeds.slice(1)]
+const node = document.getElementById('app')
+const app = Elm.Main.init({ flags, node })
 
 app.ports.authenticate.subscribe(function (data) {
   blockstack
