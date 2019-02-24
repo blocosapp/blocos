@@ -46,24 +46,14 @@ type Msg
     | ChangeGoal String
 
 
-encodeProject : Project -> Encode.Value
-encodeProject project =
-    let
-        encodedId =
-            case project.id of
-                Just uuid ->
-                    Uuid.encode uuid
-
-                Nothing ->
-                    Encode.null
-    in
-    Encode.object
-        [ ( "id", encodedId )
-        , ( "title", Encode.string project.title )
-        , ( "description", Encode.string project.description )
-        , ( "goal", Encode.float project.goal )
-        , ( "address", Encode.string "#" )
-        ]
+projectToFile : Project -> Uuid.Uuid -> Blockstack.ProjectFile
+projectToFile project uuid =
+    { address = project.address
+    , description = project.description
+    , goal = project.goal
+    , title = project.title
+    , id = Uuid.toString uuid
+    }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -73,11 +63,8 @@ update msg ( project, projects, seed ) =
             let
                 ( uuid, newSeed ) =
                     Random.step Uuid.generator seed
-
-                readyToSaveProject =
-                    { project | id = Just uuid }
             in
-            ( ( emptyProject, projects, newSeed ), Blockstack.putFile (encodeProject readyToSaveProject) )
+            ( ( emptyProject, projects, newSeed ), Blockstack.putFile (projectToFile project uuid) )
 
         ChangeDescription newDescription ->
             ( ( { project | description = newDescription }, projects, seed ), Cmd.none )

@@ -24,21 +24,33 @@
   "homepage": "https://github.com/blocosapp/blocos#readme",
   "dependencies": {
     "blockstack": "^18.1.0",
-    "express": "^4.16.4",
+    "core-js": "^2.6.5",
+    "express": "^4.16.4"
+  },
+  "devDependencies": {
+    "@types/core-js": "^2.5.0",
+    "@types/express": "^4.16.1",
+    "@types/node": "^11.9.5",
+    "css-loader": "^2.1.0",
+    "elm-typescript-interop": "0.0.15",
+    "elm-webpack-loader": "^5.0.0",
+    "eslint-plugin-typescript": "^0.14.0",
+    "fork-ts-checker-webpack-plugin": "^0.5.2",
+    "mini-css-extract-plugin": "^0.5.0",
+    "node-sass": "^4.11.0",
     "nodemon": "^1.18.9",
     "pug": "^2.0.3",
     "sass": "^1.15.2",
-    "webpack": "^4.27.1"
-  },
-  "devDependencies": {
-    "css-loader": "^2.1.0",
-    "elm-webpack-loader": "^5.0.0",
-    "mini-css-extract-plugin": "^0.5.0",
-    "node-sass": "^4.11.0",
     "sass-loader": "^7.1.0",
+    "ts-loader": "^5.3.3",
+    "tslint": "^5.12.1",
+    "tslint-config-standard": "^8.0.1",
     "typescript": "^3.3.3",
+    "typescript-eslint-parser": "^22.0.0",
+    "webpack": "^4.27.1",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.14",
-    "webpack-manifest-plugin": "^2.0.4"
+    "webpack-manifest-plugin": "^2.0.4",
+    "webpack-node-externals": "^1.7.2"
   }
 }

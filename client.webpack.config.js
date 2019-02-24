@@ -6,11 +6,10 @@ const isProduction = process.env.NODE_ENV='production'
 
 module.exports = {
   entry: {
-    lib: './client/js/lib.js',
+    lib: './client/js/lib.ts',
     styles: './client/scss/index.scss',
   },
-  // devServer: {},
-  mode: 'development',
+  mode: isProduction ? 'production' : 'development',
   module: {
     rules: [
       {
@@ -28,6 +27,14 @@ module.exports = {
           'css-loader',
           'sass-loader',
         ]
+      },
+      {
+        test: /\.ts?$/,
+        loader: 'ts-loader',
+        exclude: /node_modules/,
+        options: {
+          configFile: 'client.tsconfig.json'
+        }
       }
     ]
   },
@@ -55,5 +62,8 @@ module.exports = {
     new MiniCssExtractPlugin({
         filename: isProduction ? "css/syles.[hash].css" : "css/syles.css",
     })
-  ]
+  ],
+  resolve: {
+    extensions: [ '.elm', '.js', '.ts' ],
+  }
 }
