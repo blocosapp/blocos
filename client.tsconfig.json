@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "alwaysStrict": true,
+    "lib": ["dom", "es6"],
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "target": "es5"
+  },
+  "exclude": ["node_modules"]
+}

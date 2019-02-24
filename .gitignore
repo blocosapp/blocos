@@ -5,4 +5,8 @@ repl-temp-*
 # npm
 node_modules
 .env
-elm.js
+server/public/js/*
+server/public/css/*
+server/assets.json
+server/bin
+

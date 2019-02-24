@@ -1,10 +1,9 @@
 # Create Project
 ## To-Do
-  - Add typescript
-  - Add linting
+  - Enable Hot-module-reload && make dev environment fast
   - Add tests
   - CI
-  - ProjectSave should save to remote storage also, and redirect after. Do it async? How the UI would look like?
+  - ProjectSave should save to remote storage also, and redirect after
   - Add loading state to project save
   - Add loading state to login (?)
   - Add listProject subscription optimistic UI
@@ -15,7 +14,7 @@
   - Bake project
   - List backed projects
   - List public backed projects on the homepage
-  - _Implement an all-or-nothing logic_
+  - __Implement an all-or-nothing logic__
   - Proof of running code
   - Docker container
   - DO setup + DNS

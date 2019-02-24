@@ -26,6 +26,7 @@ import Url.Parser exposing (Parser, map, oneOf, parse, s, top)
 -- MAIN
 
 
+main : Program Flag Model Msg
 main =
     Browser.application
         { init = init
@@ -37,6 +38,10 @@ main =
         }
 
 
+type alias Flag =
+    ( Int, List Int )
+
+
 type alias Model =
     { page : Router.Page, key : Nav.Key, user : Session.User, projects : Project.Model }
 
@@ -45,7 +50,7 @@ type alias Model =
 -- @TODO: check authentication throwing command on init
 
 
-init : ( Int, List Int ) -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init : Flag -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init ( seed, seedExtension ) url navKey =
     ( { key = navKey
       , page = Router.toRoute (Url.toString url)

@@ -1,17 +1,14 @@
-build-dev:
-	make build-elm && make build-js && make build-scss
+build-client:
+	node_modules/.bin/webpack --config client.webpack.config.js
 
-build-elm:
-	elm make ./elm/Main.elm --output ./static/js/app.js
+build-client-watch:
+	node_modules/.bin/webpack-dev-server --config client.webpack.config.js
 
-watch-elm:
-	node_modules/.bin/nodemon --exec "make build-elm" -e "elm" -i "static"
+build-server:
+	node_modules/.bin/webpack --config server.webpack.config.js && chmod +x server/bin/www
 
-build-scss:
-	./node_modules/.bin/sass scss/index.scss static/css/app.css
+build-server-watch:
+	node_modules/.bin/webpack-dev-server --config server.webpack.config.js
 
-build-js:
-	./node_modules/.bin/webpack
-
-watch-all:
-	node_modules/.bin/nodemon --exec "make build-dev" -e "js elm scss" -i "static"
+generate-port-types:
+	node_modules/.bin/elm-typescript-interop
