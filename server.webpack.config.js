@@ -5,7 +5,7 @@ const nodeExternals = require('webpack-node-externals')
 const path = require('path')
 const webpack = require('webpack')
 
-const mode = process.env.NODE_ENV='production' ? 'production' : 'development'
+const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development'
 
 module.exports = {
   devtool: '#source-map',

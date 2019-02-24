@@ -2,15 +2,15 @@ import * as express from 'express'
 import * as fs from 'fs'
 import * as path from 'path'
 
-const DEV_SERVER_HOST = 'http://localhost:8080'
 const app: express.Application = express()
-const port = 8000
+const assetsServerHost = process.env.DEV_SERVER_HOST || 'http://localhost:8080'
+const port = process.env.PORT || 8000
 const production = process.env.NODE_ENV === 'production'
 const development = !production
 
 function generateAssetUrl (hashedAssetUrl: string): string {
   return development
-    ? `${DEV_SERVER_HOST}/${hashedAssetUrl}`
+    ? `${assetsServerHost}/${hashedAssetUrl}`
     : `/${hashedAssetUrl}`
 }
 
