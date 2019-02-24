@@ -17,7 +17,7 @@
     "bitcoin"
   ],
   "author": "Vinícius Andrade <vini.andrade.dev@gmail.com>",
-  "license": "UNLICENSED",
+  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/blocosapp/blocos/issues"
   },
