@@ -1,13 +1,17 @@
 const path = require('path')
 const ManifestPlugin = require('webpack-manifest-plugin')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const webpack = require('webpack');
 
-const isProduction = process.env.NODE_ENV='production'
+const isProduction = process.env.NODE_ENV === 'production'
 
 module.exports = {
   entry: {
     lib: './client/js/lib.ts',
     styles: './client/scss/index.scss',
+  },
+  devServer: {
+    inline: true
   },
   mode: isProduction ? 'production' : 'development',
   module: {
@@ -15,10 +19,16 @@ module.exports = {
       {
         test: /\.elm$/,
         exclude: [/elm-stuff/, /node_modules/],
-        loader: "elm-webpack-loader",
-        options: {
-          debug: true
-        }
+        use: [
+          { loader: 'elm-hot-webpack-loader' },
+          {
+            loader: 'elm-webpack-loader',
+            options: {
+              debug: true,
+              forceWatch: true
+            }
+          }
+        ]
       },
       {
         test: /\.scss$/,
@@ -61,7 +71,8 @@ module.exports = {
     }),
     new MiniCssExtractPlugin({
         filename: isProduction ? "css/syles.[hash].css" : "css/syles.css",
-    })
+    }),
+    new webpack.HotModuleReplacementPlugin(),
   ],
   resolve: {
     extensions: [ '.elm', '.js', '.ts' ],
