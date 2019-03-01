@@ -52,13 +52,15 @@ type alias Model =
 
 init : Flag -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init ( seed, seedExtension ) url navKey =
-    ( { key = navKey
-      , page = Router.toRoute (Url.toString url)
-      , user = ( Session.Anonymous, Nothing )
-      , projects = ( Project.emptyProject, [], initialSeed seed seedExtension )
-      }
-    , Cmd.none
-    )
+    let
+        model =
+            { key = navKey
+            , page = Router.route url
+            , user = ( Session.Anonymous, Nothing )
+            , projects = ( Project.emptyProject, [], initialSeed seed seedExtension )
+            }
+    in
+    ( model, Cmd.none )
 
 
 
@@ -164,12 +166,7 @@ update message model =
                 Browser.Internal url ->
                     let
                         page =
-                            case parse Router.route url of
-                                Just answer ->
-                                    answer
-
-                                Nothing ->
-                                    Router.NotFound
+                            Router.route url
                     in
                     ( { model | page = page }
                     , Nav.pushUrl model.key (Url.toString url)
@@ -181,9 +178,8 @@ update message model =
                     )
 
         UrlChanged url ->
-            case parse Router.route url of
-                Just answer ->
-                    ( { model | page = answer }, Cmd.none )
-
-                Nothing ->
-                    ( { model | page = Router.NotFound }, Cmd.none )
+            let
+                page =
+                    Router.route url
+            in
+            ( { model | page = page }, Cmd.none )
