@@ -1,4 +1,4 @@
-module Router exposing (Page(..), route, toRoute)
+module Router exposing (Page(..), route)
 
 import Page.Dashboard as Dashboard
 import Page.Home as Home
@@ -17,8 +17,8 @@ type Page
     | CreateProject
 
 
-route : Parser.Parser (Page -> a) a
-route =
+routeParser : Parser.Parser (Page -> a) a
+routeParser =
     Parser.oneOf
         [ Parser.map Home Parser.top
         , Parser.map Proof (Parser.s Proof.route)
@@ -27,11 +27,6 @@ route =
         ]
 
 
-toRoute : String -> Page
-toRoute urlString =
-    case Url.fromString urlString of
-        Nothing ->
-            NotFound
-
-        Just url ->
-            Maybe.withDefault NotFound (Parser.parse route url)
+route : Url.Url -> Page
+route url =
+    Maybe.withDefault NotFound (Parser.parse routeParser url)
