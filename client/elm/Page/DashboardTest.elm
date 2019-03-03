@@ -1,4 +1,4 @@
-module DashboardTest exposing (dashboardTest)
+module Page.DashboardTest exposing (dashboardTest)
 
 import Expect
 import Html
