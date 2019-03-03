@@ -12,3 +12,6 @@ build-server-watch:
 
 generate-port-types:
 	node_modules/.bin/elm-typescript-interop
+
+test:
+	node_modules/.bin/elm-test client/elm/
