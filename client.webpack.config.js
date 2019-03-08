@@ -41,7 +41,7 @@ module.exports = {
       {
         test: /\.ts?$/,
         loader: 'ts-loader',
-        exclude: /node_modules/,
+        exclude: [/node_modules/, /client\/ts\/[^/]+\/*Test.ts/],
         options: {
           configFile: 'client.tsconfig.json'
         }

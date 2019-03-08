@@ -114,3 +114,10 @@ declare module 'blockstack' {
   export function listFiles(callback: (...args: any[]) => any): Promise<any>
 }
 
+// Define jest global namespace
+declare namespace NodeJS {
+  export interface Global {
+    crypto: any
+  }
+}
+
