@@ -7,7 +7,7 @@ const isProduction = process.env.NODE_ENV === 'production'
 
 module.exports = {
   entry: {
-    lib: './client/js/lib.ts',
+    lib: './client/ts/lib.ts',
     styles: './client/scss/index.scss',
   },
   devServer: {
