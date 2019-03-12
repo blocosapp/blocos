@@ -14,13 +14,19 @@ generate-port-types:
 	node_modules/.bin/elm-typescript-interop
 
 test-client:
-	make test-elm && make test-ts
+	make test-elm && make test-ts-client
 
 test-elm:
 	node_modules/.bin/elm-test client/elm/
 
-test-ts:
-	node_modules/.bin/jest --testRegex client\/ts\/[^/]+/*Test.ts
+test-ts-client:
+	node_modules/.bin/jest --config jest.config.client.js --testRegex client\/ts\/[^/]+/*Test.ts
 
-test-ts-watch:
-	node_modules/.bin/jest --watch --testRegex client\/ts\/[^/]+/*Test.ts
+test-ts-server:
+	node_modules/.bin/jest --config jest.config.server.js --testRegex server\/[^/]+/*Test.ts
+
+test-ts-watch-client:
+	node_modules/.bin/jest --config jest.config.client.js --watch --testRegex client\/ts\/[^/]+/*Test.ts
+
+test-ts-watch-server:
+	node_modules/.bin/jest --config jest.config.server.js --watch --testRegex server\/[^/]+/*Test.ts
