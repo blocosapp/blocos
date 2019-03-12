@@ -34,6 +34,7 @@ export function handleAuthentication (app: App): void {
           return app.ports.authenticated.send(user)
         }
       })
+      .catch()
   }
 }
 
@@ -42,6 +43,8 @@ export function putFile (project: Project): void {
   const fileContent = JSON.stringify(project)
   blockstack
     .putFile(fileName + '.json', fileContent)
+    .then()
+    .catch()
 }
 
 export function signOut (): void {

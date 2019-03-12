@@ -7,7 +7,7 @@ function generateAssetUrl (hashedAssetUrl: string, host: string): string {
 }
 
 type Cache = {
-  assets?: {},
+  assets?: {}
 }
 
 let cache: Cache = {
