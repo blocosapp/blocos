@@ -13,8 +13,23 @@ build-server-watch:
 generate-port-types:
 	node_modules/.bin/elm-typescript-interop
 
+lint:
+	make lint-client && make lint-server
+
+lint-client:
+	node_modules/.bin/tslint -p tslint.json ./client/ts/**/*.ts
+
+lint-server:
+	node_modules/.bin/tslint -p tslint.json ./server/ts/**/*.ts
+
+test:
+	make test-client && make test-server
+
 test-client:
 	make test-elm && make test-ts-client
+
+test-server:
+	make test-ts-server
 
 test-elm:
 	node_modules/.bin/elm-test client/elm/
