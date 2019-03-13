@@ -4,7 +4,7 @@
   "description": "descentralized crowdfunding",
   "main": "js/index.js",
   "scripts": {
-    "test": "npm test"
+    "test": "make test"
   },
   "repository": {
     "type": "git",
