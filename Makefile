@@ -23,7 +23,7 @@ lint-server:
 	node_modules/.bin/tslint -p tslint.json ./server/ts/**/*.ts
 
 test:
-	make test-client && make test-server
+	make test-client && make test-server && make lint
 
 test-client:
 	make test-elm && make test-ts-client
