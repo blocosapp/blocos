@@ -14,11 +14,11 @@ let cache: Cache = {
   assets: undefined
 }
 
-type Return = {
-  getAssets: () => {}
+type AssetsManager = {
+  getAssets: () => Cache
 }
 
-function readAssets (assetsHost: string) {
+function readAssets (assetsHost: string): Cache {
   const assetsMap = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../assets.json'), 'utf8'))
   const assets = Object
     .keys(assetsMap)
@@ -28,11 +28,11 @@ function readAssets (assetsHost: string) {
   return cache
 }
 
-export function initAssets (mode: BuildMode, assetsHost: string): Return {
+export function initAssets (mode: BuildMode, assetsHost: string): AssetsManager {
   cache.assets = undefined
 
   return {
-    getAssets () {
+    getAssets (): Cache {
       if (mode === BuildMode.Production && cache.assets) {
         return cache.assets
       }
