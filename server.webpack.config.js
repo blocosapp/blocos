@@ -21,7 +21,6 @@ module.exports = {
         loader: 'ts-loader',
         options: {
           configFile: path.resolve(__dirname, './server.tsconfig.json'),
-          // transpileOnly: true
         }
       }
     ]
@@ -41,11 +40,6 @@ module.exports = {
         raw: true
       }
     )
-    // new ForkTsCheckerWebpackPlugin({
-      // options: {
-        // configFile: path.resolve(__dirname, './server.tsconfig.json')
-      // }
-    // })
   ],
   resolve: {
     extensions: [ '.js', '.ts' ],
