@@ -22,8 +22,8 @@ app.set('view engine', 'pug')
 app.set('views', path.resolve(__dirname, '../views'))
 
 app.get('*', (req: express.Request, res: express.Response) => {
-  const files = getAssets()
-  res.render('index', { title: 'Blocos - Descentralized censorship free crowdfunding', files })
+  const { assets } = getAssets()
+  res.render('index', { title: 'Blocos - Descentralized censorship free crowdfunding', assets })
 })
 
-app.listen(port, () => console.log(`Application started to run ${port}!`))
+app.listen(port, () => console.log(`Application started to run ${port} in ${buildMode} mode.`))
