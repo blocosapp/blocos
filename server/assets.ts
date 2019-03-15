@@ -34,7 +34,7 @@ export function initAssets (mode: BuildMode, assetsHost: string): AssetsManager 
   return {
     getAssets (): Cache {
       if (mode === BuildMode.Production && cache.assets) {
-        return cache.assets
+        return cache
       }
 
       return readAssets(assetsHost)
