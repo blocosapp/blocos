@@ -9,11 +9,14 @@ export enum BuildMode {
 }
 
 const app: express.Application = express()
-const assetsServerHost: string = process.env.DEV_SERVER_HOST || 'http://localhost:8080'
+const port: number = Number(process.env.PORT) || 8000
 const buildMode: BuildMode = process.env.NODE_ENV === 'production'
   ? BuildMode.Production
   : BuildMode.Development
-const port: number = Number(process.env.PORT) || 8000
+
+const assetsServerHost: string = buildMode === BuildMode.Production
+  ? (process.env.HOST || `http://localhost:${port}`)
+  : process.env.DEV_SERVER_HOST || 'http://localhost:8080'
 const { getAssets } = initAssets(buildMode, assetsServerHost)
 
 app.use(express.static(path.resolve(__dirname, '../public')))
