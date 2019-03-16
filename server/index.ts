@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 import fs from 'fs'
 import path from 'path'
 import { initAssets } from './assets'
@@ -19,10 +20,16 @@ const assetsServerHost: string = buildMode === BuildMode.Production
   : process.env.DEV_SERVER_HOST || 'http://localhost:8080'
 const { getAssets } = initAssets(buildMode, assetsServerHost)
 
-app.use(express.static(path.resolve(__dirname, '../public')))
 app.engine('pug', require('pug').__express)
 app.set('view engine', 'pug')
 app.set('views', path.resolve(__dirname, '../views'))
+
+app.get('/manifest.json', cors(), (req: express.Request, res: express.Response) => {
+  const manifestFile = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../public/manifest.json'), 'utf8'))
+  res.json(manifestFile)
+})
+
+app.use(express.static(path.resolve(__dirname, '../public')))
 
 app.get('*', (req: express.Request, res: express.Response) => {
   const { assets } = getAssets()
