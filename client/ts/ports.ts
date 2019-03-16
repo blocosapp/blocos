@@ -2,7 +2,7 @@ import * as blockstack from 'blockstack'
 import { App } from './Application'
 
 type Project = {
-  id?: string,
+  uuid: string,
   address?: string,
   description: string,
   goal: number,
@@ -39,7 +39,7 @@ export function handleAuthentication (app: App): void {
 }
 
 export function putFile (project: Project): void {
-  const fileName = project.id
+  const fileName = project.uuid
   const fileContent = JSON.stringify(project)
   blockstack
     .putFile(fileName + '.json', fileContent)

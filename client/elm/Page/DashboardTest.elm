@@ -23,11 +23,13 @@ fakeSeed =
 
 fakeProject : Project.Project
 fakeProject =
-    { id = Nothing
+    { uuid = Nothing
     , address = Nothing
     , description = "Project description"
     , featuredImageUrl = "https://image.jpg"
     , goal = 10.0
+    , isSaved = True
+    , saving = False
     , title = "My Project"
     }
 

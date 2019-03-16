@@ -8,7 +8,7 @@ type alias ProjectFile =
     { address : Maybe String
     , description : String
     , goal : Float
-    , id : String
+    , uuid : String
     , title : String
     }
 
