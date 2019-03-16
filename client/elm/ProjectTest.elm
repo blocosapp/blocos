@@ -2,12 +2,13 @@ module ProjectTest exposing (projectTest)
 
 import Expect exposing (Expectation)
 import Html exposing (Html)
+import Html.Attributes
 import Project
 import Random.Pcg.Extended as Random
 import Session
 import Test exposing (..)
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (attribute, classes, id, tag)
+import Test.Html.Selector exposing (attribute, class, classes, id, tag)
 
 
 userMock : Session.User
@@ -20,9 +21,27 @@ seedMock =
     Random.initialSeed 1 [ 1, 2, 3 ]
 
 
+savingProject : Project.Project
+savingProject =
+    { uuid = Nothing
+    , address = Nothing
+    , description = "Project description"
+    , featuredImageUrl = "https://image.jpg"
+    , goal = 10.0
+    , isSaved = False
+    , saving = True
+    , title = "My Project"
+    }
+
+
 createProjectView : Html Project.Msg
 createProjectView =
     Project.createProjectView userMock ( Project.emptyProject, [], seedMock )
+
+
+createProjectViewWithSavingProject : Html Project.Msg
+createProjectViewWithSavingProject =
+    Project.createProjectView userMock ( savingProject, [], seedMock )
 
 
 projectTest : Test
@@ -43,11 +62,13 @@ projectTest =
             [ test "should return an empty project" <|
                 \_ ->
                     Expect.equal Project.emptyProject
-                        { id = Nothing
+                        { uuid = Nothing
                         , title = ""
                         , description = ""
                         , featuredImageUrl = ""
                         , goal = 0.0
+                        , isSaved = False
+                        , saving = False
                         , address = Nothing
                         }
             ]
@@ -64,5 +85,11 @@ projectTest =
                         |> Query.fromHtml
                         |> Query.findAll [ tag "input" ]
                         |> Query.count (Expect.equal 3)
+            , test "should render the saving label when the project is being saved" <|
+                \_ ->
+                    createProjectViewWithSavingProject
+                        |> Query.fromHtml
+                        |> Query.find [ class "submit" ]
+                        |> Query.has [ attribute <| Html.Attributes.value "Saving..." ]
             ]
         ]

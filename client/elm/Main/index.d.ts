@@ -13,7 +13,7 @@ export namespace Elm {
           subscribe(callback: (data: null) => void): void
         }
         putFile: {
-          subscribe(callback: (data: { address: string | null; description: string; goal: number; id: string; title: string }) => void): void
+          subscribe(callback: (data: { address: string | null; description: string; goal: number; uuid: string; title: string }) => void): void
         }
         checkAuthentication: {
           subscribe(callback: (data: null) => void): void

@@ -15,11 +15,13 @@ import Uuid
 
 
 type alias Project =
-    { id : Maybe Uuid.Uuid
+    { uuid : Maybe Uuid.Uuid
     , address : Maybe String -- @TODO strongly type blockchain address
     , description : String
     , featuredImageUrl : String -- @TODO check if we can strongly type this URI
     , goal : Float
+    , isSaved : Bool
+    , saving : Bool
     , title : String
     }
 
@@ -30,30 +32,56 @@ type alias Model =
 
 emptyProject : Project
 emptyProject =
-    { id = Nothing
-    , title = ""
+    { uuid = Nothing
+    , address = Nothing
     , description = ""
     , featuredImageUrl = ""
     , goal = 0.0
-    , address = Nothing
+    , isSaved = False
+    , saving = False
+    , title = ""
     }
 
 
 type Msg
     = SaveProject
+    | ProjectSaved
     | ChangeTitle String
     | ChangeDescription String
     | ChangeGoal String
 
 
-projectToFile : Project -> Uuid.Uuid -> Blockstack.ProjectFile
-projectToFile project uuid =
+parseProjectToFile : Project -> Blockstack.ProjectFile
+parseProjectToFile project =
+    let
+        uuidString =
+            case project.uuid of
+                Just uuid ->
+                    Uuid.toString uuid
+
+                Nothing ->
+                    ""
+    in
     { address = project.address
     , description = project.description
     , goal = project.goal
     , title = project.title
-    , id = Uuid.toString uuid
+    , uuid = uuidString
     }
+
+
+setUuidIfEmpty : Project -> Random.Seed -> ( Project, Random.Seed )
+setUuidIfEmpty project seed =
+    case project.uuid of
+        Just uuid ->
+            ( project, seed )
+
+        Nothing ->
+            let
+                ( newUuid, newSeed ) =
+                    Random.step Uuid.generator seed
+            in
+            ( { project | uuid = Just newUuid }, newSeed )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -61,16 +89,19 @@ update msg ( project, projects, seed ) =
     case msg of
         SaveProject ->
             let
-                ( uuid, newSeed ) =
-                    Random.step Uuid.generator seed
+                ( projectToSave, newSeed ) =
+                    setUuidIfEmpty project seed
             in
-            ( ( emptyProject, projects, newSeed ), Blockstack.putFile (projectToFile project uuid) )
+            ( ( { projectToSave | saving = True }, projects, newSeed ), Blockstack.putFile (parseProjectToFile projectToSave) )
+
+        ProjectSaved ->
+            ( ( emptyProject, projects, seed ), Cmd.none )
 
         ChangeDescription newDescription ->
-            ( ( { project | description = newDescription }, projects, seed ), Cmd.none )
+            ( ( { project | description = newDescription, isSaved = False }, projects, seed ), Cmd.none )
 
         ChangeTitle newTitle ->
-            ( ( { project | title = newTitle }, projects, seed ), Cmd.none )
+            ( ( { project | title = newTitle, isSaved = False }, projects, seed ), Cmd.none )
 
         ChangeGoal maybeNewGoal ->
             let
@@ -82,7 +113,7 @@ update msg ( project, projects, seed ) =
                         Nothing ->
                             0.0
             in
-            ( ( { project | goal = newGoal }, projects, seed ), Cmd.none )
+            ( ( { project | goal = newGoal, isSaved = False }, projects, seed ), Cmd.none )
 
 
 createProjectRoute : String
@@ -93,6 +124,15 @@ createProjectRoute =
 createProjectTitle : String
 createProjectTitle =
     "Create your new descentralized crowdfunding project - Blocos"
+
+
+buttonLabel : Bool -> String
+buttonLabel isSaving =
+    if isSaving == True then
+        "Saving..."
+
+    else
+        "Save"
 
 
 createProjectView : Session.User -> Model -> Html.Html Msg
@@ -107,7 +147,7 @@ createProjectView user ( currentProject, projects, seed ) =
                     "Anonymous"
     in
     Html.section [ Attributes.class "create-project" ]
-        [ Html.h1 [ Attributes.class "tittle" ] [ Html.text "Create your new project" ]
+        [ Html.h1 [ Attributes.class "title" ] [ Html.text "Create your new project" ]
         , Html.form
             [ Attributes.class "form form-project"
             , Attributes.name "project"
@@ -167,7 +207,8 @@ createProjectView user ( currentProject, projects, seed ) =
             , Html.input
                 [ Attributes.class "submit button -reverse"
                 , Attributes.type_ "submit"
-                , Attributes.value "Save"
+                , Attributes.disabled currentProject.saving
+                , Attributes.value <| buttonLabel currentProject.saving
                 ]
                 []
             ]
