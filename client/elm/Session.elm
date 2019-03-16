@@ -24,6 +24,7 @@ type Msg
     = SignIn
     | SignOut
     | CheckAuthentication
+    | RedirectHome
     | SessionChanged User
 
 
@@ -52,6 +53,16 @@ subscriptions user =
     Blockstack.authenticated (\value -> SessionChanged (decodeUser value))
 
 
+redirectHome : Session -> Nav.Key -> Cmd Msg
+redirectHome session navKey =
+    case session of
+        LoggedIn ->
+            Nav.pushUrl navKey (Url.Builder.absolute [ "dashboard" ] [])
+
+        Anonymous ->
+            Nav.pushUrl navKey (Url.Builder.absolute [ "" ] [])
+
+
 update : Msg -> ( User, Nav.Key ) -> ( User, Cmd Msg )
 update msg ( user, navKey ) =
     case msg of
@@ -66,15 +77,17 @@ update msg ( user, navKey ) =
 
         SessionChanged ( session, userData ) ->
             let
-                sessionChangedCmd =
-                    case session of
-                        LoggedIn ->
-                            Nav.pushUrl navKey (Url.Builder.absolute [ "dashboard" ] [])
-
-                        Anonymous ->
-                            Cmd.none
-
                 newUser =
                     ( session, userData )
+
+                redirect =
+                    redirectHome session navKey
             in
-            ( newUser, sessionChangedCmd )
+            ( newUser, redirect )
+
+        RedirectHome ->
+            let
+                ( session, userData ) =
+                    user
+            in
+            ( user, redirectHome session navKey )
