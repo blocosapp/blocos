@@ -1,6 +1,9 @@
 import { init } from './application'
 import { getRandomInts as getRandomIntsMock } from './seed'
-import { authenticate, handleAuthentication as handleAuthenticationMock, signOut, putFile } from './ports'
+import {
+  handleAuthentication as handleAuthenticationMock,
+  handleFiles as handleFilesMock
+} from './ports'
 import { Elm } from '../elm/Main'
 
 jest.mock('../elm/Main', () => {
@@ -32,19 +35,15 @@ jest.mock('./seed', () => ({
 }))
 
 jest.mock('./ports', () => ({
-  authenticate: jest.fn(),
   handleAuthentication: jest.fn(),
-  signOut: jest.fn(),
-  putFile: jest.fn()
+  handleFiles: jest.fn()
 }))
 
 describe('application bootstrap module', () => {
   it('should bootstrap the application', () => {
     const app = init()
     expect(getRandomIntsMock).toHaveBeenCalledWith(5)
-    expect(app.ports.authenticate.subscribe).toHaveBeenCalledWith(authenticate)
-    expect(app.ports.signOut.subscribe).toHaveBeenCalledWith(signOut)
-    expect(app.ports.putFile.subscribe).toHaveBeenCalledWith(putFile)
     expect(handleAuthenticationMock).toHaveBeenCalledWith(app)
+    expect(handleFilesMock).toHaveBeenCalledWith(app)
   })
 })

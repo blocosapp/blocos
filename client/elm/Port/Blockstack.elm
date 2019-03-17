@@ -1,4 +1,4 @@
-port module Port.Blockstack exposing (ProjectFile, authenticate, authenticated, checkAuthentication, putFile, signOut)
+port module Port.Blockstack exposing (ProjectFile, authenticate, authenticated, checkAuthentication, fileSaved, putFile, signOut)
 
 import Json.Encode as E
 import Uuid
@@ -7,6 +7,7 @@ import Uuid
 type alias ProjectFile =
     { address : Maybe String
     , description : String
+    , featuredImageUrl : String
     , goal : Float
     , uuid : String
     , title : String
@@ -26,3 +27,6 @@ port checkAuthentication : () -> Cmd msg
 
 
 port authenticated : (E.Value -> msg) -> Sub msg
+
+
+port fileSaved : (ProjectFile -> msg) -> Sub msg

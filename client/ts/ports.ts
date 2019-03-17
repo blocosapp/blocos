@@ -5,11 +5,12 @@ type Project = {
   uuid: string,
   address?: string,
   description: string,
+  featuredImageUrl?: string,
   goal: number,
   title: string
 }
 
-export function authenticate (): void {
+function authenticate (): void {
   blockstack
     .redirectToSignIn(
       'https://in.blocos.app',
@@ -18,7 +19,14 @@ export function authenticate (): void {
     )
 }
 
+function signOut (): void {
+  blockstack.signUserOut('/')
+}
+
 export function handleAuthentication (app: App): void {
+  app.ports.authenticate.subscribe(authenticate)
+  app.ports.signOut.subscribe(signOut)
+
   if (blockstack.isUserSignedIn()) {
     const user = blockstack.loadUserData()
     if (user) {
@@ -38,15 +46,14 @@ export function handleAuthentication (app: App): void {
   }
 }
 
-export function putFile (project: Project): void {
-  const fileName = project.uuid
-  const fileContent = JSON.stringify(project)
-  blockstack
-    .putFile(fileName + '.json', fileContent)
-    .then()
-    .catch()
-}
-
-export function signOut (): void {
-  blockstack.signUserOut('/')
+export function handleFiles (app: App): void {
+  const fileSaved = app.ports.fileSaved.send
+  app.ports.putFile.subscribe(project => {
+    const fileName = project.uuid
+    const fileContent = JSON.stringify(project)
+    blockstack
+      .putFile(fileName + '.json', fileContent)
+      .then(() => fileSaved(project))
+      .catch()
+  })
 }

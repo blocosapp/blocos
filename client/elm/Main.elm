@@ -77,9 +77,14 @@ currentChecksum =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Session.subscriptions model.user
-        |> Sub.map SessionMsg
-        |> Sub.map Forward
+    Sub.batch
+        [ Session.subscriptions model.user
+            |> Sub.map SessionMsg
+            |> Sub.map Forward
+        , Project.subscriptions
+            |> Sub.map ProjectMsg
+            |> Sub.map Forward
+        ]
 
 
 view : Model -> Browser.Document Msg
@@ -141,7 +146,7 @@ proxyMsg msg model =
         ProjectMsg projectMsg ->
             let
                 ( newProjects, projectCmds ) =
-                    Project.update projectMsg model.projects
+                    Project.update projectMsg model.projects model.key
             in
             ( { model | projects = newProjects }, Cmd.map Forward <| Cmd.map ProjectMsg projectCmds )
 
