@@ -1,5 +1,5 @@
 import { getRandomInts } from './seed'
-import { authenticate, handleAuthentication, signOut, putFile } from './ports'
+import { handleAuthentication, handleFiles } from './ports'
 import { Elm } from '../elm/Main'
 
 export type App = Elm.Main.App
@@ -12,12 +12,7 @@ function generateFlags (): [number, number[]] {
 export function init (): App {
   const flags = generateFlags()
   const app: App = Elm.Main.init({ flags })
-
-  app.ports.authenticate.subscribe(authenticate)
-  app.ports.signOut.subscribe(signOut)
-  app.ports.putFile.subscribe(putFile)
-
   handleAuthentication(app)
-
+  handleFiles(app)
   return app
 }

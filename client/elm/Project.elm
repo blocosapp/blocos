@@ -1,6 +1,7 @@
-module Project exposing (Model, Msg, Project, createProjectRoute, createProjectTitle, createProjectView, emptyProject, update)
+module Project exposing (Model, Msg, Project, createProjectRoute, createProjectTitle, createProjectView, emptyProject, subscriptions, update)
 
 import Browser
+import Browser.Navigation as Nav
 import Html
 import Html.Attributes as Attributes
 import Html.Events as Events
@@ -45,7 +46,7 @@ emptyProject =
 
 type Msg
     = SaveProject
-    | ProjectSaved
+    | ProjectSaved Blockstack.ProjectFile
     | ChangeTitle String
     | ChangeDescription String
     | ChangeGoal String
@@ -64,9 +65,23 @@ parseProjectToFile project =
     in
     { address = project.address
     , description = project.description
+    , featuredImageUrl = project.featuredImageUrl
     , goal = project.goal
     , title = project.title
     , uuid = uuidString
+    }
+
+
+parseFileToProject : Blockstack.ProjectFile -> Project
+parseFileToProject projectFile =
+    { uuid = Uuid.fromString projectFile.uuid
+    , address = projectFile.address
+    , description = projectFile.description
+    , featuredImageUrl = projectFile.featuredImageUrl
+    , isSaved = True
+    , saving = False
+    , goal = projectFile.goal
+    , title = projectFile.title
     }
 
 
@@ -84,8 +99,18 @@ setUuidIfEmpty project seed =
             ( { project | uuid = Just newUuid }, newSeed )
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ( project, projects, seed ) =
+redirectToProjectList : Nav.Key -> Cmd Msg
+redirectToProjectList navKey =
+    Nav.pushUrl navKey (Url.Builder.absolute [ "dashboard" ] [])
+
+
+subscriptions : Sub Msg
+subscriptions =
+    Blockstack.fileSaved (\value -> ProjectSaved value)
+
+
+update : Msg -> Model -> Nav.Key -> ( Model, Cmd Msg )
+update msg ( project, projects, seed ) navKey =
     case msg of
         SaveProject ->
             let
@@ -94,8 +119,12 @@ update msg ( project, projects, seed ) =
             in
             ( ( { projectToSave | saving = True }, projects, newSeed ), Blockstack.putFile (parseProjectToFile projectToSave) )
 
-        ProjectSaved ->
-            ( ( emptyProject, projects, seed ), Cmd.none )
+        ProjectSaved savedProjectFile ->
+            let
+                updatedProjects =
+                    projects ++ [ parseFileToProject savedProjectFile ]
+            in
+            ( ( emptyProject, updatedProjects, seed ), redirectToProjectList navKey )
 
         ChangeDescription newDescription ->
             ( ( { project | description = newDescription, isSaved = False }, projects, seed ), Cmd.none )
