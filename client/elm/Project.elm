@@ -85,6 +85,29 @@ parseFileToProject projectFile =
     }
 
 
+updateIfProject : Project -> Project -> Project
+updateIfProject savingProject projectOnList =
+    if savingProject.uuid == projectOnList.uuid then
+        savingProject
+
+    else
+        projectOnList
+
+
+hasProject : List Project -> Project -> Bool
+hasProject projects project =
+    List.any (\currentProject -> currentProject.uuid == project.uuid) projects
+
+
+reconcileProjects : List Project -> Project -> List Project
+reconcileProjects projects project =
+    if hasProject projects project then
+        List.map (updateIfProject project) projects
+
+    else
+        project :: projects
+
+
 setUuidIfEmpty : Project -> Random.Seed -> ( Project, Random.Seed )
 setUuidIfEmpty project seed =
     case project.uuid of
@@ -121,8 +144,11 @@ update msg ( project, projects, seed ) navKey =
 
         ProjectSaved savedProjectFile ->
             let
+                savedProject =
+                    parseFileToProject savedProjectFile
+
                 updatedProjects =
-                    projects ++ [ parseFileToProject savedProjectFile ]
+                    reconcileProjects projects savedProject
             in
             ( ( emptyProject, updatedProjects, seed ), redirectToProjectList navKey )
 
