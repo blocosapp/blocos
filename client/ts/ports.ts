@@ -3,9 +3,9 @@ import { App } from './Application'
 
 type Project = {
   uuid: string,
-  address?: string,
+  address: string,
   description: string,
-  featuredImageUrl?: string,
+  featuredImageUrl: string,
   goal: number,
   title: string
 }
@@ -46,8 +46,48 @@ export function handleAuthentication (app: App): void {
   }
 }
 
-export function handleFiles (app: App): void {
-  const fileSaved = app.ports.fileSaved.send
+function parseFile (fileContent: string): Project {
+  try {
+    const parsedFile = JSON.parse(fileContent)
+    if (!parsedFile.uuid) {
+      return null
+    }
+
+    return {
+      uuid: parsedFile.uuid,
+      address: parsedFile.address || '',
+      description: parsedFile.description || '',
+      featuredImageUrl: parsedFile.featuredImageUrl || '',
+      goal: typeof parsedFile.goal === 'number' ? parsedFile.goal : 0,
+      title: parsedFile.title || ''
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+function fetchFile (app: App): (arg0: string) => boolean {
+  return (filePath: string) => {
+    blockstack
+      .getFile(filePath, null)
+      .then(savedFile => {
+        const parsedFile = parseFile(savedFile)
+        if (parsedFile) {
+          app.ports.fileSaved.send(parsedFile)
+        }
+      })
+      .catch(console.error)
+    return true
+  }
+}
+
+function fetchNewFiles (app: App): void {
+  blockstack
+    .listFiles(fetchFile(app))
+    .catch(console.error)
+}
+
+function subscribeToPutFile (app: App, fileSaved: (arg0: Project) => void) {
   app.ports.putFile.subscribe(project => {
     const fileName = project.uuid
     const fileContent = JSON.stringify(project)
@@ -56,4 +96,9 @@ export function handleFiles (app: App): void {
       .then(() => fileSaved(project))
       .catch()
   })
+}
+
+export function handleFiles (app: App): void {
+  subscribeToPutFile(app, app.ports.fileSaved.send)
+  fetchNewFiles(app)
 }
