@@ -45,5 +45,12 @@ view user ( project, projects, _ ) =
         [ Html.p [ Attributes.class "text" ] [ Html.text username ]
         , Html.a [ Attributes.class "link", Attributes.href <| Project.createProjectRoute ] [ Html.text "+ create new project" ]
         , Html.h2 [ Attributes.class "subtitle" ] [ Html.text "Drafts" ]
-        , Html.div [] (List.map (\projectItem -> Html.a [ Attributes.class "project-link link" ] [ Html.text projectItem.description ]) projects)
+        , Html.ul [ Attributes.class "projects-list" ]
+            (List.map
+                (\projectItem ->
+                    Html.li [ Attributes.class "projecs-list projects-list__item" ]
+                        [ Html.a [ Attributes.class "project-link link" ] [ Html.text projectItem.description ] ]
+                )
+                projects
+            )
         ]
