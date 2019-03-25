@@ -1,9 +1,9 @@
-module Page.Dashboard exposing (Msg, projectRoot, route, title, view)
+module Page.Dashboard exposing (projectRoot, route, title, view)
 
 import Browser
 import Html
 import Html.Attributes as Attributes
-import Html.Events exposing (onClick)
+import Html.Events as Events
 import Json.Encode as Encode exposing (..)
 import List
 import Project
@@ -26,11 +26,7 @@ title =
     "Blocos app"
 
 
-type Msg
-    = Nothing
-
-
-view : Session.User -> Project.Model -> Html.Html Msg
+view : Session.User -> Project.Model -> Html.Html Project.Msg
 view user ( project, projects, _ ) =
     let
         username =
@@ -49,7 +45,13 @@ view user ( project, projects, _ ) =
             (List.map
                 (\projectItem ->
                     Html.li [ Attributes.class "projecs-list projects-list__item" ]
-                        [ Html.a [ Attributes.class "project-link link" ] [ Html.text projectItem.description ] ]
+                        [ Html.a
+                            [ Attributes.class "project-link link"
+                            , Attributes.href (Project.getEditProjectRoute projectItem)
+                            , Events.onClick <| Project.EditProject projectItem
+                            ]
+                            [ Html.text projectItem.title ]
+                        ]
                 )
                 projects
             )
