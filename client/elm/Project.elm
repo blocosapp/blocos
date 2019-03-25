@@ -1,4 +1,18 @@
-module Project exposing (Model, Msg, Project, createProjectRoute, createProjectTitle, createProjectView, emptyProject, subscriptions, update)
+module Project exposing
+    ( Model
+    , Msg(..)
+    , Project
+    , createProjectRoute
+    , createProjectTitle
+    , createProjectView
+    , editProjectTitle
+    , editProjectView
+    , emptyProject
+    , getEditProjectRoute
+    , setCurrentProjectByUuidString
+    , subscriptions
+    , update
+    )
 
 import Browser
 import Browser.Navigation as Nav
@@ -50,6 +64,7 @@ type Msg
     | ChangeTitle String
     | ChangeDescription String
     | ChangeGoal String
+    | EditProject Project
 
 
 parseProjectToFile : Project -> Blockstack.ProjectFile
@@ -108,6 +123,33 @@ reconcileProjects projects project =
         project :: projects
 
 
+getEditProjectRoute : Project -> String
+getEditProjectRoute project =
+    case project.uuid of
+        Just uuid ->
+            Url.Builder.absolute [ "projects", "edit", Uuid.toString uuid ] []
+
+        Nothing ->
+            Url.Builder.absolute [ "projects", "new" ] []
+
+
+setCurrentProjectByUuidString : String -> Model -> Model
+setCurrentProjectByUuidString uuidString ( _, projects, seed ) =
+    let
+        parsedUuid =
+            Uuid.fromString uuidString
+
+        getProject projectUuid =
+            Maybe.withDefault emptyProject (List.head <| List.filter (\project -> project.uuid == projectUuid) projects)
+    in
+    case parsedUuid of
+        Just uuid ->
+            ( getProject parsedUuid, projects, seed )
+
+        Nothing ->
+            ( emptyProject, projects, seed )
+
+
 setUuidIfEmpty : Project -> Random.Seed -> ( Project, Random.Seed )
 setUuidIfEmpty project seed =
     case project.uuid of
@@ -125,6 +167,11 @@ setUuidIfEmpty project seed =
 redirectToProjectList : Nav.Key -> Cmd Msg
 redirectToProjectList navKey =
     Nav.pushUrl navKey (Url.Builder.absolute [ "dashboard" ] [])
+
+
+redirectToEditPage : Project -> Nav.Key -> Cmd Msg
+redirectToEditPage project navKey =
+    Nav.pushUrl navKey (getEditProjectRoute project)
 
 
 subscriptions : Sub Msg
@@ -151,6 +198,9 @@ update msg ( project, projects, seed ) navKey =
                     reconcileProjects projects savedProject
             in
             ( ( emptyProject, updatedProjects, seed ), redirectToProjectList navKey )
+
+        EditProject projectToEdit ->
+            ( ( projectToEdit, projects, seed ), Cmd.none )
 
         ChangeDescription newDescription ->
             ( ( { project | description = newDescription, isSaved = False }, projects, seed ), Cmd.none )
@@ -181,6 +231,11 @@ createProjectTitle =
     "Create your new descentralized crowdfunding project - Blocos"
 
 
+editProjectTitle : String
+editProjectTitle =
+    "Edit project - Blocos"
+
+
 buttonLabel : Bool -> String
 buttonLabel isSaving =
     if isSaving == True then
@@ -203,6 +258,86 @@ createProjectView user ( currentProject, projects, seed ) =
     in
     Html.section [ Attributes.class "create-project" ]
         [ Html.h1 [ Attributes.class "title" ] [ Html.text "Create your new project" ]
+        , Html.form
+            [ Attributes.class "form form-project"
+            , Attributes.name "project"
+            , Attributes.action "#"
+            , Events.onSubmit SaveProject
+            ]
+            [ Html.fieldset
+                [ Attributes.class "fieldset" ]
+                [ Html.label
+                    [ Attributes.class "label"
+                    , Attributes.for "project-title"
+                    ]
+                    [ Html.text "Title" ]
+                , Html.input
+                    [ Attributes.id "project-title"
+                    , Attributes.class "input"
+                    , Attributes.type_ "text"
+                    , Attributes.value currentProject.title
+                    , Attributes.placeholder "Project title"
+                    , Events.onInput ChangeTitle
+                    ]
+                    []
+                ]
+            , Html.fieldset
+                [ Attributes.class "fieldset" ]
+                [ Html.label
+                    [ Attributes.class "label"
+                    , Attributes.for "project-goal"
+                    ]
+                    [ Html.text "Goal (in btc)" ]
+                , Html.input
+                    [ Attributes.class "input"
+                    , Attributes.for "project-goal"
+                    , Attributes.type_ "number"
+                    , Attributes.step ".0000001"
+                    , Attributes.value <| String.fromFloat currentProject.goal
+                    , Attributes.placeholder "0.0003"
+                    , Events.onInput ChangeGoal
+                    ]
+                    []
+                ]
+            , Html.fieldset
+                [ Attributes.class "fieldset" ]
+                [ Html.label
+                    [ Attributes.class "label"
+                    , Attributes.for "project-description"
+                    ]
+                    [ Html.text "Description" ]
+                , Html.textarea
+                    [ Attributes.class "input textarea"
+                    , Attributes.name "project-description"
+                    , Attributes.placeholder "Let's fix the world, 1 btc at a time"
+                    , Events.onInput ChangeDescription
+                    ]
+                    [ Html.text currentProject.description ]
+                ]
+            , Html.input
+                [ Attributes.class "submit button -reverse"
+                , Attributes.type_ "submit"
+                , Attributes.disabled currentProject.saving
+                , Attributes.value <| buttonLabel currentProject.saving
+                ]
+                []
+            ]
+        ]
+
+
+editProjectView : Session.User -> Model -> Html.Html Msg
+editProjectView user ( currentProject, projects, seed ) =
+    let
+        username =
+            case user of
+                ( Session.LoggedIn, Just userData ) ->
+                    userData.username
+
+                _ ->
+                    "Anonymous"
+    in
+    Html.section [ Attributes.class "create-project" ]
+        [ Html.h1 [ Attributes.class "title" ] [ Html.text "Edit project" ]
         , Html.form
             [ Attributes.class "form form-project"
             , Attributes.name "project"
