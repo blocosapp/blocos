@@ -39,7 +39,7 @@ fakeProjectList =
     [ fakeProject, fakeProject, fakeProject ]
 
 
-generateDashboardView : Html.Html Dashboard.Msg
+generateDashboardView : Html.Html Project.Msg
 generateDashboardView =
     Dashboard.view fakeUser ( fakeProject, fakeProjectList, fakeSeed )
 

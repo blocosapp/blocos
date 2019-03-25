@@ -104,12 +104,17 @@ view model =
 
                 Router.Dashboard ->
                     { title = Dashboard.title
-                    , body = Skeleton.application DashboardMsg SessionMsg <| Dashboard.view model.user model.projects
+                    , body = Skeleton.application ProjectMsg SessionMsg <| Dashboard.view model.user model.projects
                     }
 
                 Router.CreateProject ->
                     { title = Project.createProjectTitle
                     , body = Skeleton.application ProjectMsg SessionMsg <| Project.createProjectView model.user model.projects
+                    }
+
+                Router.EditProject uuid ->
+                    { title = Project.editProjectTitle
+                    , body = Skeleton.application ProjectMsg SessionMsg <| Project.editProjectView model.user model.projects
                     }
 
                 _ ->
@@ -128,7 +133,6 @@ view model =
 type ProxyMsg
     = SessionMsg Session.Msg
     | ProofMsg Proof.Msg
-    | DashboardMsg Dashboard.Msg
     | ProjectMsg Project.Msg
     | NotFoundMsg NotFound.Msg
 
