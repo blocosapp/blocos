@@ -15,6 +15,9 @@ export namespace Elm {
         putFile: {
           subscribe(callback: (data: { address: string | null; description: string; featuredImageUrl: string; goal: number; uuid: string; title: string }) => void): void
         }
+        deleteFile: {
+          subscribe(callback: (data: { address: string | null; description: string; featuredImageUrl: string; goal: number; uuid: string; title: string }) => void): void
+        }
         checkAuthentication: {
           subscribe(callback: (data: null) => void): void
         }
@@ -23,6 +26,9 @@ export namespace Elm {
         }
         fileSaved: {
           send(data: { address: string | null; description: string; featuredImageUrl: string; goal: number; uuid: string; title: string }): void
+        }
+        fileDeleted: {
+          send(data: null): void
         }
       };
     }

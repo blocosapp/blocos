@@ -59,7 +59,9 @@ emptyProject =
 
 
 type Msg
-    = SaveProject
+    = DeleteProject
+    | ProjectDeleted
+    | SaveProject
     | ProjectSaved Blockstack.ProjectFile
     | ChangeTitle String
     | ChangeDescription String
@@ -123,6 +125,11 @@ reconcileProjects projects project =
         project :: projects
 
 
+removeProject : List Project -> Project -> List Project
+removeProject projects project =
+    List.filter (\item -> item.uuid /= project.uuid) projects
+
+
 getEditProjectRoute : Project -> String
 getEditProjectRoute project =
     case project.uuid of
@@ -176,12 +183,22 @@ redirectToEditPage project navKey =
 
 subscriptions : Sub Msg
 subscriptions =
-    Blockstack.fileSaved (\value -> ProjectSaved value)
+    Sub.batch
+        [ Blockstack.fileSaved (\value -> ProjectSaved value)
+        , Blockstack.fileDeleted (\_ -> ProjectDeleted)
+        ]
 
 
 update : Msg -> Model -> Nav.Key -> ( Model, Cmd Msg )
 update msg ( project, projects, seed ) navKey =
     case msg of
+        DeleteProject ->
+            let
+                updatedProjects =
+                    removeProject projects project
+            in
+            ( ( project, updatedProjects, seed ), Blockstack.deleteFile (parseProjectToFile project) )
+
         SaveProject ->
             let
                 ( projectToSave, newSeed ) =
@@ -198,6 +215,9 @@ update msg ( project, projects, seed ) navKey =
                     reconcileProjects projects savedProject
             in
             ( ( emptyProject, updatedProjects, seed ), redirectToProjectList navKey )
+
+        ProjectDeleted ->
+            ( ( emptyProject, projects, seed ), redirectToProjectList navKey )
 
         EditProject projectToEdit ->
             ( ( projectToEdit, projects, seed ), Cmd.none )

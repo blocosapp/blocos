@@ -59,6 +59,8 @@ declare module 'blockstack' {
 
   // storage
 
+  export function deleteFile(path: string): Promise<any>
+
   export function getFile(path: String, options: Object): Promise<any>
 
   export function putFile(path: string, content: string | Buffer, options?: Object): Promise<any>
