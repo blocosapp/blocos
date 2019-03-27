@@ -94,11 +94,22 @@ function subscribeToPutFile (app: App, fileSaved: (arg0: Project) => void) {
     blockstack
       .putFile(fileName + '.json', fileContent)
       .then(() => fileSaved(project))
-      .catch()
+      .catch(console.error)
+  })
+}
+
+function subscribeToDeleteFile (app: App, fileDeleted: (data: null) => void) {
+  app.ports.deleteFile.subscribe(project => {
+    const fileName = project.uuid + '.json'
+    blockstack
+      .putFile(fileName, '')
+      .then(() => fileDeleted(null))
+      .catch(console.error)
   })
 }
 
 export function handleFiles (app: App): void {
   subscribeToPutFile(app, app.ports.fileSaved.send)
+  subscribeToDeleteFile(app, app.ports.fileDeleted.send)
   fetchNewFiles(app)
 }

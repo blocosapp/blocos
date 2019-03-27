@@ -28,6 +28,9 @@ function generateAppMock () {
       authenticate: {
         subscribe: jest.fn()
       },
+      deleteFile: {
+        subscribe: jest.fn()
+      },
       signOut: {
         subscribe: jest.fn()
       },
@@ -41,6 +44,9 @@ function generateAppMock () {
         subscribe: jest.fn()
       },
       authenticated: {
+        send: jest.fn()
+      },
+      fileDeleted: {
         send: jest.fn()
       }
     }
@@ -71,10 +77,17 @@ describe('port module', () => {
     expect(appMock.ports.authenticated.send).toHaveBeenCalledWith(userMock)
   })
 
-  it('should handle putFile subsription and fetch new files when handling files', () => {
+  it('should handle putFile subscription and fetch new files when handling files', () => {
     const appMock = generateAppMock()
     handleFiles(appMock)
     expect(appMock.ports.putFile.subscribe).toHaveBeenCalled()
     expect(blockstack.listFiles).toHaveBeenCalled()
   })
+
+  it('should handle deleteFile subscription', () => {
+    const appMock = generateAppMock()
+    handleFiles(appMock)
+    expect(appMock.ports.deleteFile.subscribe).toHaveBeenCalled()
+  })
+
 })
