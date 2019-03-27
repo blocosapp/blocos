@@ -421,5 +421,12 @@ editProjectView user ( currentProject, projects, seed ) =
                 , Attributes.value <| buttonLabel currentProject.saving
                 ]
                 []
+            , Html.input
+                [ Attributes.class "submit button"
+                , Attributes.type_ "button"
+                , Attributes.value "Delete"
+                , Events.onClick DeleteProject
+                ]
+                []
             ]
         ]
