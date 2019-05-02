@@ -1,7 +1,7 @@
 port module Port.Blockstack exposing (ProjectFile, authenticate, authenticated, checkAuthentication, deleteFile, fileDeleted, fileSaved, putFile, signOut)
 
 import Json.Encode as E
-import Uuid
+import Prng.Uuid as Uuid
 
 
 type alias ProjectFile =
