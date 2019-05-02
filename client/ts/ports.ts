@@ -46,7 +46,11 @@ export function handleAuthentication (app: App): void {
   }
 }
 
-function parseFile (fileContent: string): Project {
+function parseFile (fileContent: string): Project | null {
+  if (!fileContent) {
+    return null
+  }
+
   try {
     const parsedFile = JSON.parse(fileContent)
     if (!parsedFile.uuid) {
