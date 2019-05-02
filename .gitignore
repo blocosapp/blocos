@@ -10,3 +10,5 @@ server/public/css/*
 server/assets.json
 server/bin
 
+# editors
+.idea
