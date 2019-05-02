@@ -19,14 +19,15 @@ import Browser.Navigation as Nav
 import Html
 import Html.Attributes as Attributes
 import Html.Events as Events
+import Http
 import Json.Encode as Encode
 import List
 import Port.Blockstack as Blockstack
+import Prng.Uuid as Uuid
 import Random.Pcg.Extended as Random
 import Session
 import String
 import Url.Builder
-import Uuid
 
 
 type alias Project =

@@ -3,13 +3,13 @@ module ProjectTest exposing (projectTest)
 import Expect exposing (Expectation)
 import Html exposing (Html)
 import Html.Attributes
+import Prng.Uuid as Uuid
 import Project
 import Random.Pcg.Extended as Random
 import Session
 import Test exposing (..)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (attribute, class, classes, id, tag)
-import Uuid
 
 
 userMock : Session.User
