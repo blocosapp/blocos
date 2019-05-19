@@ -1,126 +1,158 @@
+$accent: #0720FF;
+$baseColor: #FAFAFA;
+$baseColorEmphasis: #FFF;
+$baseSubtle: #EEE;
+$primary: #222;
+
+$baseHorizontalPadding: 1rem;
+$baseVerticalPadding: 1.5rem;
+
 * {
   box-sizing: border-box;
   font-family: 'Courier', monospace;
+  color: $primary;
 }
 
 body {
-  font-size: 16px;
-  line-height: 1.5;
+  background: $baseColor;
+  font-size: 14px;
+  line-height: 1.65;
   margin: 0;
 }
 
-.app {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: space-between;
-  max-width: 860px;
-  padding: 1rem;
-}
-
-.content {
-  flex: 1;
+a {
+  color: $accent;
 }
 
 .header {
+  background: $baseColorEmphasis;
+  border-bottom: 1px solid $baseSubtle;
   display: flex;
+  justify-content: space-between;
+  padding: $baseVerticalPadding $baseHorizontalPadding;
+
+  @media screen and (min-width: 45rem) {
+    padding: $baseVerticalPadding $baseHorizontalPadding * 2;
+  }
 }
 
 .logo {
-  margin-bottom: 1rem;
-
-  &.-big {
-    width: 21rem;
-  }
-
-  &.-small {
-    width: 12rem;
-  }
+  width: 7.5rem;
 
   svg {
     width: 100%;
   }
 }
 
-.home {
-  .text {
-    margin-left: 1rem;
+.banner {
+  background:
+    linear-gradient(90deg, #FAFAFA 8px, transparent 1%) 95px 100px,
+    linear-gradient(#FAFAFA 8px, transparent 1%),
+    #DDD;
+  background-size: 10px 10px;
+  padding: 7.5rem 2.5rem;
+  @media screen and (min-width: 45rem) {
+    margin: 7.5rem 2.5rem;
   }
+}
 
-  .text:before {
-    content: '>';
-    margin-left: -1rem;
-    position: absolute;
+.banner-title {
+  font-size: 2rem;
+}
+
+.banner-subtitle {
+  width: 75%;
+}
+
+.features {
+  @media screen and (min-width: 64rem) {
+    display: flex;
+    padding: 0 $baseHorizontalPadding * 2;
+  }
+}
+.feature {
+  padding: $baseVerticalPadding $baseHorizontalPadding;
+  @media screen and (min-width: 45rem) {
+    padding: $baseVerticalPadding $baseHorizontalPadding * 2;
   }
 }
 
-.create-project {
-  flex: 1;
+.feature-title {
+  margin: 0 0 .5rem;
+  font-weight: normal;
+  font-size: 1.25rem;
 }
 
-.form {
-  background-image: repeating-linear-gradient(-45deg, #FFF 0, #FFF 10px, #F0F0F0 10px, #F0F0F0 11px);
-  color: #333;
-  padding: 1rem;
+.feature-description {
+  margin: 0 0 .5rem;
 }
 
-.input {
-  border: 1px solid #F0F0F0;
-  font-size: .75rem;
-  height: 3rem;
-  margin: 0 0 1rem;
-  padding: 1rem;
-  width: 100%;
+.newsletter {
+  padding: $baseVerticalPadding*2 $baseHorizontalPadding;
+  text-align: center;
+
 }
 
-.textarea {
-  height: 30rem;
-  resize: none;
+.newsletter-info {
+  margin: 0 0 3rem;
 }
 
-.fieldset {
-  background: #FEFEFE;
-  border: none;
+.newsletter-form {
   margin: 0;
-  padding: 1rem;
 }
 
-.button {
-  background: #FFF;
-  border: 3px solid #464646;
-  font-size: 1rem;
-  font-weight: bold;
-  margin: 1rem 0;
-  padding: 1rem;
-  text-decoration: underline;
+.newsletter-input {
+  border: 1px solid $baseSubtle;
+  display: block;
+  height: 2.25rem;
+  margin: 0 auto .5rem;
+  max-width: 22.5rem;
+  padding: .5rem 1rem;
+  width: 100%;
 
-  &:hover,
-  &.-reverse {
-    background-color: #464646;
-    color: #FFF;
+  &::placeholder {
+    color: #CACACA;
   }
+}
 
-  &__link {
-    border: none;
-    cursor: pointer;
-    margin: 0;
+.newsletter-submit {
+  background: $accent;
+  border: none;
+  color: white;
+  padding: .75rem 1rem;
+}
 
-    &:hover {
-      background-color: #FFF;
-      color: #464646;
-    }
-  }
+.hidden-visible-input {
+  left: -5000px;
+  position: absolute;
 }
 
 .footer {
-  border-top: 1px solid #F0F0F0;
-
-  .link {
-    display: block;
-    margin: .5rem 0;
+  background: #FFF;
+  border-top: 1px solid #EEE;
+  margin-top: 2.5rem;
+  padding: 1.5rem 1rem;
+  @media screen and (min-width: 45rem) {
+    padding: 1.5rem 1.5rem;
+  }
+  @media screen and (min-width: 64rem) {
+    padding: $baseVerticalPadding $baseHorizontalPadding * 2;
   }
 }
 
-.link {
-  color: #3700FF;
+.footer-disclaimer {
+  font-size: .75rem;
+  margin: 2rem 1rem 0;
+  text-align: center;
+}
+
+.footer-list {
+  padding-left: 1rem;
+  list-style: disclosure-closed;
+}
+
+.footer-list__item {
+  &::marker {
+    font-size: .75rem;
+  }
 }

@@ -38,7 +38,8 @@ skeletonTest =
                     Skeleton.content TestViewMsg testView
                         |> Query.fromHtml
                         |> Expect.all
-                            [ Query.has [ classes [ "logo", "-big" ] ]
+                            [ Query.has [ class "logo" ]
+                            , Query.has [ class "content" ]
                             , Query.has [ class "test-view" ]
                             , Query.has [ class "footer" ]
                             ]
