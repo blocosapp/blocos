@@ -43,38 +43,6 @@ testRouter =
                                 Router.Home
                         in
                         Expect.equal expectation result
-
-                --
-                , test "proof /proof-of-running-code" <|
-                    \_ ->
-                        let
-                            result =
-                                Router.route <| buildUrl "/proof-of-running-code"
-
-                            expectation =
-                                Router.Proof
-                        in
-                        Expect.equal expectation result
-                , test "dashboard /dashboard" <|
-                    \_ ->
-                        let
-                            result =
-                                Router.route <| buildUrl "/dashboard"
-
-                            expectation =
-                                Router.Dashboard
-                        in
-                        Expect.equal expectation result
-                , test "create project /projects/new" <|
-                    \_ ->
-                        let
-                            result =
-                                Router.route <| buildUrl "/projects/new"
-
-                            expectation =
-                                Router.CreateProject
-                        in
-                        Expect.equal expectation result
                 ]
             ]
         ]
