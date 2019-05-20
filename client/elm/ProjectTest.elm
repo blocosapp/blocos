@@ -37,8 +37,7 @@ projectMocker uuidMock =
     , description = "Mocked project"
     , featuredImageUrl = "https://project.png"
     , goal = 10
-    , isSaved = False
-    , saving = True
+    , status = Project.Saving
     , title = "My Mocked Project"
     }
 
@@ -50,8 +49,7 @@ savingProject =
     , description = "Project description"
     , featuredImageUrl = "https://image.jpg"
     , goal = 10.0
-    , isSaved = False
-    , saving = True
+    , status = Project.Saving
     , title = "My Project"
     }
 
@@ -133,8 +131,7 @@ projectTest =
                         , description = ""
                         , featuredImageUrl = ""
                         , goal = 0.0
-                        , isSaved = False
-                        , saving = False
+                        , status = Project.Saved
                         , address = Nothing
                         }
             ]
