@@ -15,7 +15,7 @@ type Msg
 
 view : Html.Html msg
 view =
-    Html.div []
+    Html.div [ Attributes.class "page-content" ]
         [ Html.h1 [] [ Html.text title ]
         , Html.p [] [ Html.text "We couldn't find the page you are looking for. :(" ]
         ]

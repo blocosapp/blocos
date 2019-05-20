@@ -122,6 +122,14 @@ a {
   padding: .75rem 1rem;
 }
 
+.page-content {
+  padding: $baseVerticalPadding $baseHorizontalPadding;
+
+  @media screen and (min-width: 45rem) {
+    padding: $baseVerticalPadding $baseHorizontalPadding * 2;
+  }
+}
+
 .hidden-visible-input {
   left: -5000px;
   position: absolute;
