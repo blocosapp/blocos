@@ -2,6 +2,7 @@ module Project exposing
     ( Model
     , Msg(..)
     , Project
+    , ProjectStatus(..)
     , createProjectRoute
     , createProjectTitle
     , createProjectView
@@ -30,14 +31,25 @@ import String
 import Url.Builder
 
 
+type ProjectStatus
+    = Unsaved
+    | Saving
+    | Saved
+    | Publishing
+    | Published
+
+
+type alias WalletAddress =
+    String
+
+
 type alias Project =
     { uuid : Maybe Uuid.Uuid
-    , address : Maybe String -- @TODO strongly type blockchain address
+    , address : Maybe WalletAddress
     , description : String
-    , featuredImageUrl : String -- @TODO check if we can strongly type this URI
+    , featuredImageUrl : String
     , goal : Float
-    , isSaved : Bool
-    , saving : Bool
+    , status : ProjectStatus
     , title : String
     }
 
@@ -53,8 +65,7 @@ emptyProject =
     , description = ""
     , featuredImageUrl = ""
     , goal = 0.0
-    , isSaved = False
-    , saving = False
+    , status = Saved
     , title = ""
     }
 
@@ -96,8 +107,7 @@ parseFileToProject projectFile =
     , address = projectFile.address
     , description = projectFile.description
     , featuredImageUrl = projectFile.featuredImageUrl
-    , isSaved = True
-    , saving = False
+    , status = Saved
     , goal = projectFile.goal
     , title = projectFile.title
     }
@@ -205,7 +215,7 @@ update msg ( project, projects, seed ) navKey =
                 ( projectToSave, newSeed ) =
                     setUuidIfEmpty project seed
             in
-            ( ( { projectToSave | saving = True }, projects, newSeed ), Blockstack.putFile (parseProjectToFile projectToSave) )
+            ( ( { projectToSave | status = Saving }, projects, newSeed ), Blockstack.putFile (parseProjectToFile projectToSave) )
 
         ProjectSaved savedProjectFile ->
             let
@@ -224,10 +234,10 @@ update msg ( project, projects, seed ) navKey =
             ( ( projectToEdit, projects, seed ), Cmd.none )
 
         ChangeDescription newDescription ->
-            ( ( { project | description = newDescription, isSaved = False }, projects, seed ), Cmd.none )
+            ( ( { project | description = newDescription, status = Unsaved }, projects, seed ), Cmd.none )
 
         ChangeTitle newTitle ->
-            ( ( { project | title = newTitle, isSaved = False }, projects, seed ), Cmd.none )
+            ( ( { project | title = newTitle, status = Unsaved }, projects, seed ), Cmd.none )
 
         ChangeGoal maybeNewGoal ->
             let
@@ -239,7 +249,7 @@ update msg ( project, projects, seed ) navKey =
                         Nothing ->
                             0.0
             in
-            ( ( { project | goal = newGoal, isSaved = False }, projects, seed ), Cmd.none )
+            ( ( { project | goal = newGoal, status = Unsaved }, projects, seed ), Cmd.none )
 
 
 createProjectRoute : String
@@ -267,7 +277,7 @@ buttonLabel isSaving =
 
 
 createProjectView : Session.User -> Model -> Html.Html Msg
-createProjectView user ( currentProject, projects, seed ) =
+createProjectView user ( currentProject, _, _ ) =
     let
         username =
             case user of
@@ -276,6 +286,14 @@ createProjectView user ( currentProject, projects, seed ) =
 
                 _ ->
                     "Anonymous"
+
+        isSaving =
+            case currentProject.status of
+                Saving ->
+                    True
+
+                _ ->
+                    False
     in
     Html.section [ Attributes.class "create-project" ]
         [ Html.h1 [ Attributes.class "title" ] [ Html.text "Create your new project" ]
@@ -338,8 +356,8 @@ createProjectView user ( currentProject, projects, seed ) =
             , Html.input
                 [ Attributes.class "submit button -reverse"
                 , Attributes.type_ "submit"
-                , Attributes.disabled currentProject.saving
-                , Attributes.value <| buttonLabel currentProject.saving
+                , Attributes.disabled isSaving
+                , Attributes.value <| buttonLabel isSaving
                 ]
                 []
             ]
@@ -356,6 +374,14 @@ editProjectView user ( currentProject, projects, seed ) =
 
                 _ ->
                     "Anonymous"
+
+        isSaving =
+            case currentProject.status of
+                Saving ->
+                    True
+
+                _ ->
+                    False
     in
     Html.section [ Attributes.class "create-project" ]
         [ Html.h1 [ Attributes.class "title" ] [ Html.text "Edit project" ]
@@ -418,8 +444,8 @@ editProjectView user ( currentProject, projects, seed ) =
             , Html.input
                 [ Attributes.class "submit button -reverse"
                 , Attributes.type_ "submit"
-                , Attributes.disabled currentProject.saving
-                , Attributes.value <| buttonLabel currentProject.saving
+                , Attributes.disabled isSaving
+                , Attributes.value <| buttonLabel isSaving
                 ]
                 []
             , Html.input

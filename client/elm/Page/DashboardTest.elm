@@ -28,8 +28,7 @@ fakeProject =
     , description = "Project description"
     , featuredImageUrl = "https://image.jpg"
     , goal = 10.0
-    , isSaved = True
-    , saving = False
+    , status = Project.Saved
     , title = "My Project"
     }
 
