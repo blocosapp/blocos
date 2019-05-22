@@ -77,11 +77,19 @@ describe('port module', () => {
     expect(appMock.ports.authenticated.send).toHaveBeenCalledWith(userMock)
   })
 
-  it('should handle putFile subscription and fetch new files when handling files', () => {
+  it('should get list of saved files when user is authenticated', async () => {
+    const userMock = { username: 'Mr. Mock' }
+    const appMock = generateAppMock()
+    mockPendingAuthenticationUser(blockstack, userMock)
+    handleAuthentication(appMock)
+    await flushPromises()
+    expect(blockstack.listFiles).toHaveBeenCalled()
+  })
+
+  it('should handle putFile subscription', () => {
     const appMock = generateAppMock()
     handleFiles(appMock)
     expect(appMock.ports.putFile.subscribe).toHaveBeenCalled()
-    expect(blockstack.listFiles).toHaveBeenCalled()
   })
 
   it('should handle deleteFile subscription', () => {
@@ -89,5 +97,4 @@ describe('port module', () => {
     handleFiles(appMock)
     expect(appMock.ports.deleteFile.subscribe).toHaveBeenCalled()
   })
-
 })
