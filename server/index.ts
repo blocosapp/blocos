@@ -16,7 +16,7 @@ const buildMode: BuildMode = process.env.NODE_ENV === 'production'
   : BuildMode.Development
 
 const assetsServerHost: string = buildMode === BuildMode.Production
-  ? (process.env.HOST || `http://localhost:${port}`)
+  ? (process.env.HOST || '')
   : process.env.DEV_SERVER_HOST || 'http://localhost:8080'
 const { getAssets } = initAssets(buildMode, assetsServerHost)
 
@@ -33,7 +33,7 @@ app.use(express.static(path.resolve(__dirname, '../public')))
 
 app.get('*', (req: express.Request, res: express.Response) => {
   const { assets } = getAssets()
-  res.render('index', { title: 'Blocos - Descentralized censorship free crowdfunding', assets })
+  res.render('index', { title: 'Blocos - Creative project funding powered by Bitcoin', assets })
 })
 
 app.listen(port, () => console.log(`Application started to run ${port} in ${buildMode} mode.`))
