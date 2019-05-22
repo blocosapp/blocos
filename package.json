@@ -1,7 +1,7 @@
 {
   "name": "blocos",
   "version": "0.0.1",
-  "description": "descentralized crowdfunding",
+  "description": "decentralized crowdfunding",
   "main": "js/index.js",
   "scripts": {
     "test": "make test"
