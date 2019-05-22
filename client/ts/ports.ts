@@ -1,5 +1,5 @@
 import * as blockstack from 'blockstack'
-import { App } from './Application'
+import { App } from './application'
 
 type Project = {
   uuid: string,
@@ -30,16 +30,18 @@ export function handleAuthentication (app: App): void {
   if (blockstack.isUserSignedIn()) {
     const user = blockstack.loadUserData()
     if (user) {
-      return app.ports.authenticated.send(user)
+      app.ports.authenticated.send(user)
+      return fetchSavedFiles(app)
     }
-
   }
+
   if (blockstack.isSignInPending()) {
     blockstack
       .handlePendingSignIn()
       .then(user => {
         if (user) {
-          return app.ports.authenticated.send(user)
+          app.ports.authenticated.send(user)
+          return fetchSavedFiles(app)
         }
       })
       .catch()
@@ -85,7 +87,7 @@ function fetchFile (app: App): (arg0: string) => boolean {
   }
 }
 
-function fetchNewFiles (app: App): void {
+function fetchSavedFiles (app: App): void {
   blockstack
     .listFiles(fetchFile(app))
     .catch(console.error)
@@ -115,5 +117,4 @@ function subscribeToDeleteFile (app: App, fileDeleted: (data: null) => void) {
 export function handleFiles (app: App): void {
   subscribeToPutFile(app, app.ports.fileSaved.send)
   subscribeToDeleteFile(app, app.ports.fileDeleted.send)
-  fetchNewFiles(app)
 }
