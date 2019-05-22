@@ -20,12 +20,11 @@ module.exports = {
         test: /\.elm$/,
         exclude: [/elm-stuff/, /node_modules/],
         use: [
-          { loader: 'elm-hot-webpack-loader' },
           {
             loader: 'elm-webpack-loader',
             options: {
-              debug: true,
-              forceWatch: true
+              debug: !isProduction,
+              forceWatch: !isProduction
             }
           }
         ]
