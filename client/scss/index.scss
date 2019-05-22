@@ -34,7 +34,12 @@ a {
   @media screen and (min-width: 45rem) {
     padding: $baseVerticalPadding $baseHorizontalPadding * 2;
   }
+
+  .header__submit {
+    margin: 0;
+  }
 }
+
 
 .logo {
   width: 7.5rem;
@@ -87,10 +92,30 @@ a {
   margin: 0 0 .5rem;
 }
 
-.newsletter {
-  padding: $baseVerticalPadding*2 $baseHorizontalPadding;
+.sign-in {
+  padding: $baseVerticalPadding * 2 $baseHorizontalPadding;
   text-align: center;
 
+  .sign-in__submit {
+    width: 100%;
+  }
+}
+
+.submit {
+  background: $accent;
+  border: 1px solid $baseSubtle;
+  color: #FFF;
+  display: block;
+  height: 2.25rem;
+  margin: 0 auto .5rem;
+  max-width: 22.5rem;
+  padding: .5rem 1rem;
+  -webkit-appearance: none;
+}
+
+.newsletter {
+  padding: $baseVerticalPadding * 2 $baseHorizontalPadding;
+  text-align: center;
 }
 
 .newsletter-info {
@@ -109,6 +134,7 @@ a {
   max-width: 22.5rem;
   padding: .5rem 1rem;
   width: 100%;
+  -webkit-appearance: none;
 
   &::placeholder {
     color: #CACACA;

@@ -94,12 +94,12 @@ view model =
             case model.page of
                 Router.Home ->
                     { title = Home.title
-                    , body = Skeleton.content SessionMsg <| Home.view model.user
+                    , body = Skeleton.content SessionMsg SessionMsg <| Home.view model.user
                     }
 
                 Router.Proof ->
                     { title = Proof.title
-                    , body = Skeleton.content ProofMsg <| Proof.view currentChecksum
+                    , body = Skeleton.content ProofMsg SessionMsg <| Proof.view currentChecksum
                     }
 
                 Router.Dashboard ->
@@ -119,7 +119,7 @@ view model =
 
                 _ ->
                     { title = NotFound.title
-                    , body = Skeleton.content NotFoundMsg NotFound.view
+                    , body = Skeleton.content NotFoundMsg SessionMsg NotFound.view
                     }
     in
     { title = document.title, body = [ Html.map Forward <| document.body ] }

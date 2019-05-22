@@ -1,7 +1,7 @@
 module Page.Home exposing (route, title, view)
 
-import Html exposing (Html, article, button, form, h1, h2, input, p, section, text)
-import Html.Attributes exposing (action, class, id, method, name, placeholder, type_, value)
+import Html exposing (Html, a, article, button, form, h1, h2, input, p, section, text)
+import Html.Attributes exposing (action, class, href, id, method, name, placeholder, type_, value)
 import Html.Events exposing (onClick)
 import Session
 
@@ -46,12 +46,8 @@ view user =
                 , p [ class "feature-description" ] [ text "All transactions are written to a public ledger - a blockchain. Anyone can audit and verify every project on the platform." ]
                 ]
             ]
-        , section [ id "newsletter", class "newsletter" ]
-            [ p [ class "newsletter-info" ] [ text "Join our newsletter to know more about the platform and when it will be released." ]
-            , form [ class "newsletter-form", action "https://gmail.us20.list-manage.com/subscribe/post?u=541e810c6ff7316d44044e4c5&amp;id=7fb8b97eb9", method "POST" ]
-                [ input [ class "newsletter-input", placeholder "crypto@bitcoin.com", type_ "email", name "EMAIL" ] []
-                , input [ class "hidden-visible-input", name "b_541e810c6ff7316d44044e4c5_7fb8b97eb9", type_ "text", value "" ] []
-                , input [ class "newsletter-submit", type_ "submit", value "join newsletter" ] []
-                ]
+        , section [ class "sign-in" ]
+            [ p [ class "sign-in__info" ] [ text "Sign in right now with your ", a [ href "https://blockstack.org/what-is-blockstack/" ] [ text "Blockstack" ], text " id and be part of our community." ]
+            , button [ class "submit sign-in__submit", onClick Session.SignIn ] [ text "Sign in using Blockstack" ]
             ]
         ]

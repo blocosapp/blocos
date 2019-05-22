@@ -35,7 +35,7 @@ skeletonTest =
         [ describe "content"
             [ test "should wrap the view in an application skeleton" <|
                 \_ ->
-                    Skeleton.content TestViewMsg testView
+                    Skeleton.content TestViewMsg SessionMsg testView
                         |> Query.fromHtml
                         |> Expect.all
                             [ Query.has [ class "logo" ]
