@@ -20,7 +20,12 @@ type Page
 routeParser : Parser.Parser (Page -> a) a
 routeParser =
     Parser.oneOf
-        [ Parser.map Home Parser.top ]
+        [ Parser.map Home Parser.top
+        , Parser.map Proof (Parser.s Proof.route)
+        , Parser.map Dashboard (Parser.s Dashboard.route)
+        , Parser.map CreateProject (Parser.s "projects" </> Parser.s "new")
+        , Parser.map EditProject (Parser.s "projects" </> Parser.s "edit" </> Parser.string)
+        ]
 
 
 route : Url.Url -> Page
