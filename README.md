@@ -40,3 +40,7 @@ NODE_ENV=production make build-server
 ```shell
 cd server && HOST=http://localhost:8000 bin/www
 ```
+
+### Warning
+
+This project is under intense discover process. Don't mind the mess. Soon everything will make sense. :)
