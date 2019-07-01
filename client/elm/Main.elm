@@ -2,24 +2,17 @@ module Main exposing (Model, Msg, main)
 
 import Browser exposing (UrlRequest)
 import Browser.Navigation as Nav
-import Html exposing (Html, a, button, footer, h1, header, main_, map, p, section, text)
-import Html.Attributes exposing (class, href, target)
-import Html.Events exposing (onClick)
+import Html exposing (Html)
 import Page.Dashboard as Dashboard
 import Page.Home as Home
 import Page.NotFound as NotFound
 import Page.Proof as Proof
-import Port.Blockstack as Blockstack
 import Project
 import Random.Pcg.Extended exposing (initialSeed)
 import Router
 import Session
 import Skeleton
-import Svg exposing (g, svg)
-import Svg.Attributes
 import Url exposing (Url)
-import Url.Builder
-import Url.Parser exposing (Parser, map, oneOf, parse, s, top)
 
 
 
@@ -44,10 +37,6 @@ type alias Flag =
 
 type alias Model =
     { page : Router.Page, key : Nav.Key, user : Session.User, projects : Project.Model, sidebar : Skeleton.Model }
-
-
-
--- @TODO: check authentication throwing command on init
 
 
 init : Flag -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -87,7 +76,7 @@ view model =
             case model.page of
                 Router.Home ->
                     { title = Home.title
-                    , body = Skeleton.content SessionMsg SessionMsg <| Home.view model.user
+                    , body = Skeleton.content SessionMsg SessionMsg model.user <| Home.view model.user
                     }
 
                 Router.Dashboard ->
@@ -112,7 +101,7 @@ view model =
 
                 _ ->
                     { title = NotFound.title
-                    , body = Skeleton.content NotFoundMsg SessionMsg NotFound.view
+                    , body = Skeleton.content NotFoundMsg SessionMsg model.user NotFound.view
                     }
     in
     { title = document.title, body = [ Html.map Forward <| document.body ] }

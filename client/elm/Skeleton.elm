@@ -43,14 +43,33 @@ menu =
     Svg.svg [ Svg.Attributes.width "24", Svg.Attributes.height "24", Svg.Attributes.viewBox "0 0 24 24", Svg.Attributes.fill "none", Svg.Attributes.stroke "currentColor", Svg.Attributes.strokeWidth "2", Svg.Attributes.strokeLinecap "round", Svg.Attributes.strokeLinejoin "round", Svg.Attributes.class "feather feather-menu" ] [ Svg.line [ Svg.Attributes.x1 "3", Svg.Attributes.y1 "12", Svg.Attributes.x2 "21", Svg.Attributes.y2 "12" ] [], Svg.line [ Svg.Attributes.x1 "3", Svg.Attributes.y1 "6", Svg.Attributes.x2 "21", Svg.Attributes.y2 "6" ] [], Svg.line [ Svg.Attributes.x1 "3", Svg.Attributes.y1 "18", Svg.Attributes.x2 "21", Svg.Attributes.y2 "18" ] [] ]
 
 
-content : (a -> msg) -> (Session.Msg -> msg) -> Html.Html a -> Html.Html msg
-content toMsg fromSession children =
+content : (a -> msg) -> (Session.Msg -> msg) -> Session.User -> Html.Html a -> Html.Html msg
+content toMsg fromSession ( session, _ ) children =
+    let
+        renderHeaderButton =
+            case session of
+                Session.LoggedIn ->
+                    Html.a
+                        [ Attributes.id "link-app"
+                        , Attributes.class "button-link"
+                        , Attributes.href <| Url.Builder.absolute [ Dashboard.route ] []
+                        ]
+                        [ Html.text "Go to the app >" ]
+
+                Session.Anonymous ->
+                    Html.a
+                        [ Attributes.class "submit header__submit"
+                        , Attributes.id "sign-in"
+                        , Events.onClick Session.SignIn
+                        ]
+                        [ Html.text "Sign in" ]
+    in
     Html.main_
         [ Attributes.class "content" ]
         [ Html.map fromSession <|
             Html.header [ Attributes.class "header" ]
                 [ Html.a [ Attributes.class "logo", Attributes.href <| Url.Builder.absolute [ Home.route ] [] ] [ logo ]
-                , Html.button [ Attributes.class "submit header__submit", Events.onClick Session.SignIn ] [ Html.text "Sign in" ]
+                , renderHeaderButton
                 ]
         , Html.map toMsg <| children
         , footer

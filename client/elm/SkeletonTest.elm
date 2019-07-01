@@ -35,20 +35,30 @@ skeletonModel =
     Skeleton.Opened
 
 
+anonymousUser : Session.User
+anonymousUser =
+    ( Session.Anonymous, Nothing )
+
+
+loggedInUser : Session.User
+loggedInUser =
+    ( Session.LoggedIn, Just { username = "user", name = Nothing, profilePicture = Nothing } )
+
+
 skeletonTest : Test
 skeletonTest =
     describe "Skeleton"
         [ describe "content"
             [ test "should wrap the view in an application skeleton" <|
                 \_ ->
-                    Skeleton.content TestViewMsg SessionMsg testView
+                    Skeleton.content TestViewMsg SessionMsg loggedInUser testView
                         |> Query.fromHtml
-                        |> Expect.all
-                            [ Query.has [ class "logo" ]
-                            , Query.has [ class "content" ]
-                            , Query.has [ class "test-view" ]
-                            , Query.has [ class "footer" ]
-                            ]
+                        |> Expect.all [ Query.has [ id "link-app" ] ]
+            , test "should show sign in button if user is anonymous" <|
+                \_ ->
+                    Skeleton.content TestViewMsg SessionMsg anonymousUser testView
+                        |> Query.fromHtml
+                        |> Expect.all [ Query.has [ id "sign-in" ] ]
             ]
         , describe
             "application"

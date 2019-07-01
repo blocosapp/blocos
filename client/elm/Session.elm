@@ -38,8 +38,7 @@ decodeUser value =
         Ok userData ->
             ( LoggedIn, Just userData )
 
-        Err error ->
-            -- ( Anonymous, Just { username = Decode.errorToString error } )
+        Err _ ->
             ( Anonymous, Nothing )
 
 
@@ -52,7 +51,7 @@ userDataDecoder =
 
 
 subscriptions : User -> Sub Msg
-subscriptions user =
+subscriptions _ =
     Blockstack.authenticated (\value -> SessionChanged (decodeUser value))
 
 
@@ -82,15 +81,12 @@ update msg ( user, navKey ) =
             let
                 newUser =
                     ( session, userData )
-
-                redirect =
-                    redirectHome session navKey
             in
-            ( newUser, redirect )
+            ( newUser, Cmd.none )
 
         RedirectHome ->
             let
-                ( session, userData ) =
+                ( session, _ ) =
                     user
             in
             ( user, redirectHome session navKey )

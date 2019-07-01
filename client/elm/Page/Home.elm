@@ -1,9 +1,11 @@
 module Page.Home exposing (route, title, view)
 
-import Html exposing (Html, a, article, button, form, h1, h2, input, p, section, text)
-import Html.Attributes exposing (action, class, href, id, method, name, placeholder, type_, value)
+import Html exposing (Html, a, article, br, button, h1, h2, p, section, text)
+import Html.Attributes exposing (class, href)
 import Html.Events exposing (onClick)
+import Page.Dashboard as Dashboard
 import Session
+import Url.Builder
 
 
 route : String
@@ -17,15 +19,30 @@ title =
 
 
 view : Session.User -> Html Session.Msg
-view user =
+view ( session, userData ) =
     let
         username =
-            case user of
-                ( Session.LoggedIn, Just userData ) ->
-                    userData.username
+            case userData of
+                Just data ->
+                    data.username
 
-                _ ->
+                Nothing ->
                     "Anonymous"
+
+        renderAuthSection =
+            case session of
+                Session.LoggedIn ->
+                    section [ class "sign-in" ]
+                        [ p [ class "sign-in__info" ] [ text "You are logged in with ", text username ]
+                        , br [] []
+                        , a [ class "button -primary", href <| Url.Builder.absolute [ Dashboard.route ] [] ] [ text "Go to the app" ]
+                        ]
+
+                Session.Anonymous ->
+                    section [ class "sign-in" ]
+                        [ p [ class "sign-in__info" ] [ text "Sign in right now with your ", a [ href "https://blockstack.org/what-is-blockstack/" ] [ text "Blockstack" ], text " id and be part of our community." ]
+                        , button [ class "submit sign-in__submit", onClick Session.SignIn ] [ text "Sign in using Blockstack" ]
+                        ]
     in
     section [ class "home" ]
         [ section [ class "banner" ]
@@ -46,8 +63,5 @@ view user =
                 , p [ class "feature-description" ] [ text "All transactions are written to a public ledger - a blockchain. Anyone can audit and verify every project on the platform." ]
                 ]
             ]
-        , section [ class "sign-in" ]
-            [ p [ class "sign-in__info" ] [ text "Sign in right now with your ", a [ href "https://blockstack.org/what-is-blockstack/" ] [ text "Blockstack" ], text " id and be part of our community." ]
-            , button [ class "submit sign-in__submit", onClick Session.SignIn ] [ text "Sign in using Blockstack" ]
-            ]
+        , renderAuthSection
         ]
