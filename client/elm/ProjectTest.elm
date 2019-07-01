@@ -12,9 +12,17 @@ import Test.Html.Query as Query
 import Test.Html.Selector exposing (attribute, class, classes, id, tag)
 
 
+userData : Session.UserData
+userData =
+    { username = "John Doe"
+    , name = Nothing
+    , profilePicture = Nothing
+    }
+
+
 userMock : Session.User
 userMock =
-    ( Session.LoggedIn, Just { username = "Neymar Jr." } )
+    ( Session.LoggedIn, Just userData )
 
 
 uuidMocks : List String
@@ -34,10 +42,14 @@ projectMocker : String -> Project.Project
 projectMocker uuidMock =
     { uuid = Uuid.fromString uuidMock
     , address = Nothing
+    , cardImageUrl = "https://card.png"
+    , coverImageUrl = "https://cover.png"
     , description = "Mocked project"
-    , featuredImageUrl = "https://project.png"
     , goal = 10
+    , rewards = []
+    , projectVideoUrl = "https://ytb.c"
     , status = Project.Saving
+    , tagline = "Project tagline"
     , title = "My Mocked Project"
     }
 
@@ -46,10 +58,14 @@ savingProject : Project.Project
 savingProject =
     { uuid = Nothing
     , address = Nothing
+    , cardImageUrl = "https://card.jpg"
+    , coverImageUrl = "https://cover.jpg"
     , description = "Project description"
-    , featuredImageUrl = "https://image.jpg"
     , goal = 10.0
+    , rewards = []
+    , projectVideoUrl = "https://ytb.c"
     , status = Project.Saving
+    , tagline = "tagline"
     , title = "My Project"
     }
 
@@ -119,7 +135,7 @@ projectTest =
         , describe
             "createProjectTitle"
             [ test "should return a string with a title for the page" <|
-                \_ -> Expect.equal Project.createProjectTitle "Create your new descentralized crowdfunding project - Blocos"
+                \_ -> Expect.equal Project.createProjectTitle "Create your new decentralized crowdfunding project - Blocos"
             ]
         , describe
             "emptyProject"
@@ -127,32 +143,25 @@ projectTest =
                 \_ ->
                     Expect.equal Project.emptyProject
                         { uuid = Nothing
-                        , title = ""
-                        , description = ""
-                        , featuredImageUrl = ""
-                        , goal = 0.0
-                        , status = Project.Saved
                         , address = Nothing
+                        , cardImageUrl = ""
+                        , coverImageUrl = ""
+                        , description = ""
+                        , goal = 0.0
+                        , projectVideoUrl = ""
+                        , rewards = []
+                        , status = Project.Saved
+                        , tagline = ""
+                        , title = ""
                         }
             ]
         , describe
             "createProjectView"
-            [ test "should render a form" <|
-                \_ ->
-                    createProjectView
-                        |> Query.fromHtml
-                        |> Query.has [ tag "form" ]
-            , test "should render the create project form inputs" <|
-                \_ ->
-                    createProjectView
-                        |> Query.fromHtml
-                        |> Query.findAll [ tag "input" ]
-                        |> Query.count (Expect.equal 3)
-            , test "should render the saving label when the project is being saved" <|
+            [ test "should render the saving label when the project is being saved" <|
                 \_ ->
                     createProjectViewWithSavingProject
                         |> Query.fromHtml
-                        |> Query.find [ class "submit" ]
+                        |> Query.find [ class "-save" ]
                         |> Query.has [ attribute <| Html.Attributes.value "Saving..." ]
             ]
         ]

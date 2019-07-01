@@ -43,7 +43,7 @@ type alias Flag =
 
 
 type alias Model =
-    { page : Router.Page, key : Nav.Key, user : Session.User, projects : Project.Model }
+    { page : Router.Page, key : Nav.Key, user : Session.User, projects : Project.Model, sidebar : Skeleton.Model }
 
 
 
@@ -58,17 +58,10 @@ init ( seed, seedExtension ) url navKey =
             , page = Router.route url
             , user = ( Session.Anonymous, Nothing )
             , projects = ( Project.emptyProject, [], initialSeed seed seedExtension )
+            , sidebar = Skeleton.Closed
             }
     in
     ( model, Cmd.none )
-
-
-
--- @TODO: get this on init
-
-
-currentChecksum =
-    "123"
 
 
 
@@ -97,24 +90,24 @@ view model =
                     , body = Skeleton.content SessionMsg SessionMsg <| Home.view model.user
                     }
 
-                Router.Proof ->
-                    { title = Proof.title
-                    , body = Skeleton.content ProofMsg SessionMsg <| Proof.view currentChecksum
-                    }
-
                 Router.Dashboard ->
                     { title = Dashboard.title
-                    , body = Skeleton.application ProjectMsg SessionMsg <| Dashboard.view model.user model.projects
+                    , body = Skeleton.application ProjectMsg SessionMsg SkeletonMsg model.sidebar <| Dashboard.view model.user model.projects
                     }
 
                 Router.CreateProject ->
                     { title = Project.createProjectTitle
-                    , body = Skeleton.application ProjectMsg SessionMsg <| Project.createProjectView model.user model.projects
+                    , body = Skeleton.application ProjectMsg SessionMsg SkeletonMsg model.sidebar <| Project.createProjectView model.user model.projects
                     }
 
-                Router.EditProject uuid ->
+                Router.EditProject _ ->
                     { title = Project.editProjectTitle
-                    , body = Skeleton.application ProjectMsg SessionMsg <| Project.editProjectView model.user model.projects
+                    , body = Skeleton.application ProjectMsg SessionMsg SkeletonMsg model.sidebar <| Project.createProjectView model.user model.projects
+                    }
+
+                Router.PublishProject _ ->
+                    { title = Project.editProjectTitle
+                    , body = Skeleton.application ProjectMsg SessionMsg SkeletonMsg model.sidebar <| Project.publishProjectView model.user model.projects
                     }
 
                 _ ->
@@ -134,6 +127,7 @@ type ProxyMsg
     = SessionMsg Session.Msg
     | ProofMsg Proof.Msg
     | ProjectMsg Project.Msg
+    | SkeletonMsg Skeleton.Msg
     | NotFoundMsg NotFound.Msg
 
 
@@ -154,6 +148,9 @@ proxyMsg msg model =
             in
             ( { model | projects = newProjects }, Cmd.map Forward <| Cmd.map ProjectMsg projectCmds )
 
+        SkeletonMsg skeletonMsg ->
+            ( { model | sidebar = Skeleton.update model.sidebar skeletonMsg }, Cmd.none )
+
         _ ->
             ( model, Cmd.none )
 
@@ -162,6 +159,29 @@ type Msg
     = LinkClicked UrlRequest
     | Forward ProxyMsg
     | UrlChanged Url
+
+
+updatePageModel : Router.Page -> Model -> Model
+updatePageModel page model =
+    let
+        ( currentProject, projects, seed ) =
+            model.projects
+
+        setProject uuid =
+            Project.setCurrentProjectByUuidString uuid model.projects
+    in
+    case page of
+        Router.EditProject uuid ->
+            { model | page = page, projects = setProject uuid }
+
+        Router.PublishProject uuid ->
+            { model | page = page, projects = setProject uuid }
+
+        Router.CreateProject ->
+            { model | page = page, projects = ( Project.emptyProject, projects, seed ) }
+
+        _ ->
+            { model | page = page }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -177,7 +197,7 @@ update message model =
                         page =
                             Router.route url
                     in
-                    ( { model | page = page }
+                    ( updatePageModel page model
                     , Nav.pushUrl model.key (Url.toString url)
                     )
 
@@ -191,4 +211,4 @@ update message model =
                 page =
                     Router.route url
             in
-            ( { model | page = page }, Cmd.none )
+            ( updatePageModel page model, Cmd.none )

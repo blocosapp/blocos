@@ -13,7 +13,7 @@ import Test.Html.Selector exposing (attribute, class, id, tag, text)
 
 fakeUser : Session.User
 fakeUser =
-    ( Session.LoggedIn, Just { username = "Crowdfunder" } )
+    ( Session.LoggedIn, Just { username = "Crowdfunder", name = Nothing, profilePicture = Nothing } )
 
 
 fakeSeed : Random.Seed
@@ -26,9 +26,13 @@ fakeProject =
     { uuid = Nothing
     , address = Nothing
     , description = "Project description"
-    , featuredImageUrl = "https://image.jpg"
+    , cardImageUrl = "https://image.jpg"
+    , coverImageUrl = "https://cover.png"
     , goal = 10.0
+    , projectVideoUrl = "https://video.ytb"
+    , rewards = []
     , status = Project.Saved
+    , tagline = "Tag"
     , title = "My Project"
     }
 
@@ -57,25 +61,7 @@ dashboardTest =
             ]
         , describe
             "view"
-            [ test "should show username" <|
-                \_ ->
-                    let
-                        ( _, user ) =
-                            fakeUser
-
-                        username =
-                            case user of
-                                Just userData ->
-                                    userData.username
-
-                                Nothing ->
-                                    ""
-                    in
-                    generateDashboardView
-                        |> Query.fromHtml
-                        |> Query.find [ class "text" ]
-                        |> Query.has [ text username ]
-            , test "shold list the user projects" <|
+            [ test "shold list the user projects" <|
                 \_ ->
                     generateDashboardView
                         |> Query.fromHtml
