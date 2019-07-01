@@ -1,18 +1,21 @@
+import { default as blockstack, UserSession, AppConfig } from 'blockstack'
 import { getRandomInts } from './seed'
-import { handleAuthentication, handleFiles } from './ports'
 import { Elm } from '../elm/Main'
-
-export type App = Elm.Main.App
+import { startPorts } from './ports'
+import { appConfig } from '../config'
 
 function generateFlags (): [number, number[]] {
   const seeds = getRandomInts(5)
   return [seeds[0], seeds.slice(1)]
 }
 
-export function init (): App {
+function createSession (): UserSession {
+  return new UserSession({ appConfig })
+}
+
+export function init (): void {
   const flags = generateFlags()
-  const app: App = Elm.Main.init({ flags })
-  handleAuthentication(app)
-  handleFiles(app)
-  return app
+  const app = Elm.Main.init({ flags })
+  const session = createSession()
+  startPorts(app, session)
 }
