@@ -27,6 +27,12 @@ type Msg
 type ViewMsg
     = TestViewMsg Msg
     | SessionMsg Session.Msg
+    | SkeletonMsg Skeleton.Msg
+
+
+skeletonModel : Skeleton.Model
+skeletonModel =
+    Skeleton.Opened
 
 
 skeletonTest : Test
@@ -48,7 +54,7 @@ skeletonTest =
             "application"
             [ test "should wrap the view in a content skeleton" <|
                 \_ ->
-                    Skeleton.application TestViewMsg SessionMsg testApplicationView
+                    Skeleton.application TestViewMsg SessionMsg SkeletonMsg skeletonModel testApplicationView
                         |> Query.fromHtml
                         |> Expect.all
                             [ Query.has [ class "logo" ]

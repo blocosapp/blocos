@@ -1,6 +1,9 @@
+$white: #FFF;
 $accent: #0720FF;
+$alert: #C30000;
+$baseAccent: #DDD;
 $baseColor: #FAFAFA;
-$baseColorEmphasis: #FFF;
+$baseColorEmphasis: $white;
 $baseSubtle: #EEE;
 $primary: #222;
 
@@ -24,7 +27,61 @@ a {
   color: $accent;
 }
 
+.submit {
+  -webkit-appearance: none;
+  background: $accent;
+  border: 1px solid $baseSubtle;
+  border-radius: 2px;
+  color: $white;
+  display: block;
+  margin: 0 auto .5rem;
+  max-width: 22.5rem;
+  padding: 1rem;
+
+  &.-inverted {
+    background: $white;
+    color: $accent;
+  }
+
+  &.-no-margin {
+    margin: 0;
+  }
+
+  &-link {
+    font-weight: bold;
+    height: auto;
+    padding: 0.75rem;
+    text-align: center;
+    text-decoration: none;
+  }
+}
+
+.button {
+    -webkit-appearance: none;
+    padding: 1rem;
+
+  &.-inverted {
+    background: $white;
+    border: 1px solid $accent;
+    color: $accent;
+  }
+
+  &.-alert {
+    border-color: $alert;
+    color: $alert;
+  }
+
+  &.-primary {
+    background: $accent;
+    border: 1px solid $accent;
+    color: $white;
+    font-weight: bold;
+    padding: 1rem 2rem;
+  }
+}
+
 .header {
+  align-items: center;
   background: $baseColorEmphasis;
   border-bottom: 1px solid $baseSubtle;
   display: flex;
@@ -38,13 +95,111 @@ a {
   .header__submit {
     margin: 0;
   }
+
+  &.-centered {
+    padding: $baseVerticalPadding/2 $baseHorizontalPadding;
+  }
 }
 
+.menu-button {
+  -webkit-appearance: none;
+  background: none;
+  border: 1px solid $baseSubtle;
+  border-radius: 2px;
+  width: 2rem;
+  height: 2rem;
+
+  svg {
+    width: 100%;
+  }
+}
 
 .logo {
   width: 7.5rem;
 
   svg {
+    width: 100%;
+  }
+
+  &.-small {
+    width: 4.5rem;
+  }
+}
+
+.side-menu {
+  background: $white;
+  border-radius: 2px;
+  border: 1px solid $baseSubtle;
+  left: -50rem;
+  padding: 2.5rem 2rem;
+  position: absolute;
+  top: 3.5rem;
+
+  &.-opened {
+    left: 0;
+  }
+
+  .side-menu__sign-out {
+    margin-left: .75rem;
+  }
+}
+
+.side-menu__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.side-menu__links-list {
+  list-style: none;
+  padding: 0;
+}
+
+.side-menu__links-list-item {
+  padding: .75rem;
+  width: 100%;
+}
+
+.side-menu__divider {
+  border: 1px solid $baseSubtle;
+}
+
+.fieldset {
+  border: none;
+  padding: 1rem 0;
+}
+
+.label {
+  display: block;
+  font-weight: bold;
+  padding-bottom: .5rem;
+}
+
+.label-support {
+  display: none;
+  font-size: .85rem;
+  font-style: italic;
+}
+
+.input {
+  display: block;
+  font-size: 1rem;
+  -webkit-appearance: none;
+
+  &.-text {
+    border: 1px solid $baseAccent;
+    max-width: 32rem;
+    padding: .75rem 1rem;
+    width: 100%;
+  }
+
+  &.-textarea {
+    border: 1px solid $baseAccent;
+    height: 12rem;
+    line-height: 1.25;
+    max-width: 32rem;
+    padding: 1rem;
+    resize: vertical;
     width: 100%;
   }
 }
@@ -67,6 +222,104 @@ a {
 
 .banner-subtitle {
   width: 75%;
+}
+
+.image-selector {
+  position: relative;
+
+  &.-preview {
+    background-position: center;
+    background-size: cover;
+    height: 320px;
+    width: 320px;
+
+    &.-cover {
+      height: 395px;
+      width: 100%;
+    }
+  }
+
+  &__input {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: -1;
+  }
+
+  &__selector {
+    background: $baseSubtle;
+    border: 1px solid $baseAccent;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+
+    &.-card {
+      height: 320px;
+      width: 320px;
+    }
+
+    &.-cover {
+      max-width: 32rem;
+    }
+  }
+
+  &__text {
+    font-style: oblique;
+    margin: 0;
+  }
+
+  &__icon {
+    margin: 0 0 1rem;
+  }
+
+  &__actions {
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+  }
+
+  &__actionButton {
+    -webkit-appearance: none;
+    border-radius: 50%;
+    border: none;
+    height: 3rem;
+    margin-left: .5rem;
+    text-align: center;
+    width: 3rem;
+  }
+}
+
+.feature-banner {
+  background:
+    linear-gradient(90deg, #FAFAFA 8px, transparent 1%) 95px 100px,
+    linear-gradient(#FAFAFA 8px, transparent 1%),
+    #DDD;
+  background-size: 10px 10px;
+  padding: 2.5rem;
+  @media screen and (min-width: 45rem) {
+    margin: 2.5rem;
+  }
+
+  &__title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  &__subtitle {
+    font-size: 1.6rem;
+    font-weight: normal;
+  }
+
+  &__disclaimer {
+    font-size: .75rem;
+    font-style: oblique;
+    margin: 0;
+    text-align: center;
+  }
 }
 
 .features {
@@ -101,17 +354,6 @@ a {
   }
 }
 
-.submit {
-  background: $accent;
-  border: 1px solid $baseSubtle;
-  color: #FFF;
-  display: block;
-  height: 2.25rem;
-  margin: 0 auto .5rem;
-  max-width: 22.5rem;
-  padding: .5rem 1rem;
-  -webkit-appearance: none;
-}
 
 .newsletter {
   padding: $baseVerticalPadding * 2 $baseHorizontalPadding;
@@ -162,7 +404,7 @@ a {
 }
 
 .footer {
-  background: #FFF;
+  background: $white;
   border-top: 1px solid #EEE;
   margin-top: 2.5rem;
   padding: 1.5rem 1rem;
@@ -189,4 +431,86 @@ a {
   &::marker {
     font-size: .75rem;
   }
+}
+
+.create-project {
+  padding: 1rem;
+}
+
+.rewards-list {
+  border-left: 1px dashed $baseAccent;
+  list-style: none;
+  padding: 1rem;
+
+  &__item {
+    margin-bottom: 1rem;
+  }
+
+  &__reward {
+    border: 1px solid $baseSubtle;
+    display: block;
+    height: 3rem;
+    line-height: 3rem;
+    margin-bottom: .5rem;
+    padding: .75rem;
+    position: relative;
+    width: 100%;
+
+    &.-textarea {
+      line-height: 1.5;
+      height: 4.5rem;
+      resize: vertical;
+    }
+
+    &.-number {
+      margin-bottom: 0;
+    }
+  }
+
+  &__delete {
+    margin: .5rem 0;
+  }
+
+  &__title {
+    margin: 0 0 .5rem;
+  }
+
+  &__divider{
+    border: none;
+    border-bottom: 1px dashed $baseSubtle;
+    margin: 1rem 0 1rem -1rem;
+  }
+}
+
+.amount-with-unit {
+  display: flex;
+  align-items: center;
+
+  &__amount {
+    flex: 1;
+  }
+
+  &__unit {
+    border: 1px solid #DDD;
+    border-left: none;
+    flex: 1;
+    font-size: .75rem;
+    font-style: italic;
+    height: 3rem;
+    justify-self: center;
+    line-height: 3rem;
+    text-align: center;
+  }
+}
+
+.project-actions {
+  margin-left: 2px;
+
+  &__action {
+    margin: .75rem .75rem .75rem 0;
+  }
+}
+
+.project-submit {
+  margin-left: 2px;
 }

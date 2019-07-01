@@ -14,7 +14,9 @@ type Page
     | Proof
     | Dashboard
     | CreateProject
+    | EditProjectReward String
     | EditProject String
+    | PublishProject String
 
 
 routeParser : Parser.Parser (Page -> a) a
@@ -24,7 +26,9 @@ routeParser =
         , Parser.map Proof (Parser.s Proof.route)
         , Parser.map Dashboard (Parser.s Dashboard.route)
         , Parser.map CreateProject (Parser.s "projects" </> Parser.s "new")
+        , Parser.map EditProjectReward (Parser.s "projects" </> Parser.s "edit" </> Parser.string </> Parser.s "rewards")
         , Parser.map EditProject (Parser.s "projects" </> Parser.s "edit" </> Parser.string)
+        , Parser.map PublishProject (Parser.s "projects" </> Parser.s "publish" </> Parser.string)
         ]
 
 
