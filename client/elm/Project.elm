@@ -796,11 +796,19 @@ publishProjectView user ( currentProject, _, _ ) =
                 , Html.span [ Attributes.class "label-support" ] [ Html.text "The wallet address that is going to receive the project's funded money." ]
                 , Html.input [ Attributes.class "input -text", Attributes.name "project-wallet", Attributes.placeholder "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2", Events.onInput ChangeAddress, Attributes.value walletAddress ] []
                 ]
-            , Html.input
-                [ Attributes.type_ "submit"
-                , Attributes.value "Publish project right now"
-                , Attributes.disabled hasTaskInProgress
+            , Html.div [ Attributes.class "project-actions" ]
+                [ Html.a
+                    [ Attributes.href <| getEditProjectRoute currentProject
+                    , Attributes.class "button -inverted project-actions__action"
+                    ]
+                    [ Html.text "back to edit" ]
+                , Html.input
+                    [ Attributes.type_ "submit"
+                    , Attributes.class "button -primary project-actions__action"
+                    , Attributes.value "Publish project right now"
+                    , Attributes.disabled hasTaskInProgress
+                    ]
+                    []
                 ]
-                []
             ]
         ]
