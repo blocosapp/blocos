@@ -15,9 +15,14 @@ testView =
     Html.div [ Attributes.class "test-view" ] [ Html.text "test view rendered" ]
 
 
+testApplicationViewID : String
+testApplicationViewID =
+    "application-test-view"
+
+
 testApplicationView : Html.Html Msg
 testApplicationView =
-    Html.div [ Attributes.class "test-view" ] [ Html.text "test view rendered" ]
+    Html.div [ Attributes.id testApplicationViewID ] [ Html.text "test view rendered" ]
 
 
 type Msg
@@ -62,15 +67,22 @@ skeletonTest =
             ]
         , describe
             "application"
-            [ test "should wrap the view in a content skeleton" <|
+            [ test "should wrap the view in a content skeleton if the user is signed in" <|
                 \_ ->
-                    Skeleton.application TestViewMsg SessionMsg SkeletonMsg skeletonModel testApplicationView
+                    Skeleton.application TestViewMsg SessionMsg SkeletonMsg loggedInUser skeletonModel testApplicationView
                         |> Query.fromHtml
                         |> Expect.all
-                            [ Query.has [ class "logo" ]
-                            , Query.hasNot [ class "-big" ]
-                            , Query.has [ class "dashboard" ]
+                            [ Query.has [ class "dashboard" ]
+                            , Query.has [ id testApplicationViewID ]
                             , Query.has [ class "footer" ]
+                            ]
+            , test "should not render application data and render sign in info when the user is not authenticated" <|
+                \_ ->
+                    Skeleton.application TestViewMsg SessionMsg SkeletonMsg anonymousUser skeletonModel testApplicationView
+                        |> Query.fromHtml
+                        |> Expect.all
+                            [ Query.hasNot [ id testApplicationViewID ]
+                            , Query.has [ id "sign-in" ]
                             ]
             ]
         ]

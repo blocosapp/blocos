@@ -109,14 +109,33 @@ sidebar model fromSkeleton fromSession =
         ]
 
 
-application : (a -> msg) -> (Session.Msg -> msg) -> (Msg -> msg) -> Model -> Html.Html a -> Html.Html msg
-application toMsg fromSession fromSkeleton model children =
-    Html.main_ [ Attributes.class "app dashboard" ]
-        [ header fromSkeleton
-        , sidebar model fromSkeleton fromSession
-        , Html.map toMsg <| children
-        , footer
+unauthorizedUserView : (Session.Msg -> msg) -> Html.Html msg
+unauthorizedUserView fromSession =
+    Html.div
+        [ Attributes.class "unauthorized" ]
+        [ Html.h1 [ Attributes.class "title" ] [ Html.text "Unauthorized" ]
+        , Html.p [] [ Html.text "You are not authorized to view this page" ]
+        , Html.map fromSession <| Html.button [ Attributes.class "submit", Attributes.id "sign-in", Events.onClick Session.SignIn ] [ Html.text "Sign in" ]
         ]
+
+
+application : (a -> msg) -> (Session.Msg -> msg) -> (Msg -> msg) -> Session.User -> Model -> Html.Html a -> Html.Html msg
+application toMsg fromSession fromSkeleton ( session, _ ) model children =
+    case session of
+        Session.LoggedIn ->
+            Html.main_ [ Attributes.class "app dashboard" ]
+                [ header fromSkeleton
+                , sidebar model fromSkeleton fromSession
+                , Html.map toMsg <| children
+                , footer
+                ]
+
+        Session.Anonymous ->
+            Html.main_ [ Attributes.class "app dashboard" ]
+                [ header fromSkeleton
+                , unauthorizedUserView fromSession
+                , footer
+                ]
 
 
 footer : Html.Html a

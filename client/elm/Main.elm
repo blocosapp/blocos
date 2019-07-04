@@ -81,22 +81,22 @@ view model =
 
                 Router.Dashboard ->
                     { title = Dashboard.title
-                    , body = Skeleton.application ProjectMsg SessionMsg SkeletonMsg model.sidebar <| Dashboard.view model.user model.projects
+                    , body = Skeleton.application ProjectMsg SessionMsg SkeletonMsg model.user model.sidebar <| Dashboard.view model.user model.projects
                     }
 
                 Router.CreateProject ->
                     { title = Project.createProjectTitle
-                    , body = Skeleton.application ProjectMsg SessionMsg SkeletonMsg model.sidebar <| Project.createProjectView model.user model.projects
+                    , body = Skeleton.application ProjectMsg SessionMsg SkeletonMsg model.user model.sidebar <| Project.createProjectView model.user model.projects
                     }
 
                 Router.EditProject _ ->
                     { title = Project.editProjectTitle
-                    , body = Skeleton.application ProjectMsg SessionMsg SkeletonMsg model.sidebar <| Project.createProjectView model.user model.projects
+                    , body = Skeleton.application ProjectMsg SessionMsg SkeletonMsg model.user model.sidebar <| Project.createProjectView model.user model.projects
                     }
 
                 Router.PublishProject _ ->
                     { title = Project.editProjectTitle
-                    , body = Skeleton.application ProjectMsg SessionMsg SkeletonMsg model.sidebar <| Project.publishProjectView model.user model.projects
+                    , body = Skeleton.application ProjectMsg SessionMsg SkeletonMsg model.user model.sidebar <| Project.publishProjectView model.user model.projects
                     }
 
                 _ ->
