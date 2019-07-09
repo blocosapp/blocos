@@ -28,6 +28,7 @@ fakeProject =
     , description = "Project description"
     , cardImageUrl = "https://image.jpg"
     , coverImageUrl = "https://cover.png"
+    , duration = 60
     , goal = 10.0
     , projectVideoUrl = "https://video.ytb"
     , rewards = []

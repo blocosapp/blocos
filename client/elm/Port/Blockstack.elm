@@ -14,6 +14,7 @@ type alias ProjectFile =
     , cardImageUrl : String
     , coverImageUrl : String
     , description : String
+    , duration : Int
     , goal : Float
     , projectVideoUrl : String
     , rewards : List ProjectFileReward

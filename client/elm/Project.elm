@@ -55,6 +55,7 @@ type alias Project =
     , cardImageUrl : String
     , coverImageUrl : String
     , description : String
+    , duration : Int
     , goal : Float
     , projectVideoUrl : String
     , rewards : List Reward
@@ -75,6 +76,7 @@ emptyProject =
     , cardImageUrl = ""
     , coverImageUrl = ""
     , description = ""
+    , duration = 60
     , goal = 0.0
     , projectVideoUrl = ""
     , rewards = []
@@ -91,6 +93,7 @@ type Msg
     | ChangeCardImage
     | ChangeCoverImage
     | ChangeDescription String
+    | ChangeDuration String
     | ChangeGoal String
     | ChangeProjectVideo String
     | ChangeRewardContribution Reward String
@@ -148,6 +151,7 @@ parseProjectToFile project =
     , cardImageUrl = project.cardImageUrl
     , coverImageUrl = project.coverImageUrl
     , description = project.description
+    , duration = project.duration
     , goal = project.goal
     , projectVideoUrl = project.projectVideoUrl
     , rewards = project.rewards
@@ -163,6 +167,7 @@ parseFileToProject projectFile =
     , cardImageUrl = projectFile.cardImageUrl
     , coverImageUrl = projectFile.coverImageUrl
     , description = projectFile.description
+    , duration = projectFile.duration
     , goal = projectFile.goal
     , projectVideoUrl = projectFile.projectVideoUrl
     , rewards = projectFile.rewards
@@ -357,6 +362,13 @@ update msg ( project, projects, seed ) navKey =
 
         GetCoverImageFile newCoverImageUrl ->
             ( ( { project | coverImageUrl = newCoverImageUrl }, projects, seed ), Cmd.none )
+
+        ChangeDuration duration ->
+            let
+                projectDuration =
+                    Maybe.withDefault 0 <| String.toInt duration
+            in
+            ( ( { project | duration = projectDuration }, projects, seed ), Cmd.none )
 
         DeleteCoverImage ->
             ( ( { project | coverImageUrl = "" }, projects, seed ), Cmd.none )
@@ -769,6 +781,9 @@ publishProjectView user ( currentProject, _, _ ) =
                 Nothing ->
                     ""
 
+        projectDuration =
+            String.fromInt currentProject.duration
+
         hasTaskInProgress =
             case currentProject.status of
                 Publishing ->
@@ -779,6 +794,7 @@ publishProjectView user ( currentProject, _, _ ) =
     in
     Html.section [ Attributes.class "publish-project" ]
         [ Html.h1 [ Attributes.class "publish-project__title" ] [ Html.text "Publish your project" ]
+        , Html.p [ Attributes.class "info" ] [ Html.text "When publishing a project, the information related to it is going to be persisted to a blockchain. After that, you can no longer edit the project main information." ]
         , Html.h2 [ Attributes.class "publish-project__project-title" ] [ Html.text currentProject.title ]
         , Html.form
             [ Attributes.class "publish-project__form"
@@ -795,6 +811,26 @@ publishProjectView user ( currentProject, _, _ ) =
                     [ Html.text "Project wallet address" ]
                 , Html.span [ Attributes.class "label-support" ] [ Html.text "The wallet address that is going to receive the project's funded money." ]
                 , Html.input [ Attributes.class "input -text", Attributes.name "project-wallet", Attributes.placeholder "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2", Events.onInput ChangeAddress, Attributes.value walletAddress ] []
+                ]
+            , Html.fieldset
+                [ Attributes.class "fieldset" ]
+                [ Html.label
+                    [ Attributes.class "label"
+                    , Attributes.for "project-days"
+                    ]
+                    [ Html.text "Funding duration" ]
+                , Html.span [ Attributes.class "label-support" ] [ Html.text "How many days you expect to run the project. Max. 60 days." ]
+                , Html.input
+                    [ Attributes.class "input -text -short"
+                    , Attributes.name "project-days"
+                    , Attributes.placeholder "60"
+                    , Attributes.type_ "number"
+                    , Attributes.max "60"
+                    , Attributes.min "0"
+                    , Events.onInput ChangeDuration
+                    , Attributes.value projectDuration
+                    ]
+                    []
                 ]
             , Html.div [ Attributes.class "project-actions" ]
                 [ Html.a
