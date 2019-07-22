@@ -16,6 +16,8 @@ type alias ProjectFile =
     , description : String
     , duration : Int
     , goal : Float
+    , projectHash : String
+    , projectHubUrl : String
     , projectVideoUrl : String
     , rewards : List ProjectFileReward
     , tagline : String

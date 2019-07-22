@@ -21,6 +21,10 @@ import File.Select as Select
 import Html
 import Html.Attributes as Attributes
 import Html.Events as Events
+import Http
+import Json.Decode as Decode
+import Json.Decode.Pipeline exposing (hardcoded, optional, required)
+import Json.Encode as Encode
 import List
 import Port.Blockstack as Blockstack
 import Prng.Uuid as Uuid
@@ -58,6 +62,8 @@ type alias Project =
     , duration : Int
     , goal : Float
     , projectVideoUrl : String
+    , projectHash : String
+    , projectHubUrl : String
     , rewards : List Reward
     , status : ProjectStatus
     , tagline : String
@@ -78,6 +84,8 @@ emptyProject =
     , description = ""
     , duration = 60
     , goal = 0.0
+    , projectHash = ""
+    , projectHubUrl = ""
     , projectVideoUrl = ""
     , rewards = []
     , status = Saved
@@ -112,6 +120,7 @@ type Msg
     | ProjectDeleted
     | ProjectSaved Blockstack.ProjectFile
     | PublishProject
+    | PublishedProject (Result Http.Error Project)
     | SaveProject
 
 
@@ -153,6 +162,8 @@ parseProjectToFile project =
     , description = project.description
     , duration = project.duration
     , goal = project.goal
+    , projectHash = project.projectHash
+    , projectHubUrl = project.projectHubUrl
     , projectVideoUrl = project.projectVideoUrl
     , rewards = project.rewards
     , tagline = project.tagline
@@ -169,6 +180,8 @@ parseFileToProject projectFile =
     , description = projectFile.description
     , duration = projectFile.duration
     , goal = projectFile.goal
+    , projectHash = projectFile.projectHash
+    , projectHubUrl = projectFile.projectHubUrl
     , projectVideoUrl = projectFile.projectVideoUrl
     , rewards = projectFile.rewards
     , status = Saved
@@ -287,6 +300,66 @@ selectImage cmd =
 updateRewardsIndex : List Reward -> List Reward
 updateRewardsIndex rewards =
     List.indexedMap (\index reward -> { reward | id = index + 1 }) rewards
+
+
+buildPublishRequestBody : Project -> Encode.Value
+buildPublishRequestBody project =
+    let
+        projectUuid =
+            case project.uuid of
+                Just uuid ->
+                    Uuid.toString uuid
+
+                Nothing ->
+                    ""
+    in
+    Encode.object
+        [ ( "uuid", Encode.string projectUuid )
+        , ( "address", Encode.string <| Maybe.withDefault "" project.address )
+        , ( "duration", Encode.int project.duration )
+        , ( "goal", Encode.float project.goal )
+        ]
+
+
+rewardDecoder : Decode.Decoder Reward
+rewardDecoder =
+    Decode.map4 Reward
+        (Decode.field "id" Decode.int)
+        (Decode.field "title" Decode.string)
+        (Decode.field "contribution" Decode.float)
+        (Decode.field "description" Decode.string)
+
+
+projectDecoder : Decode.Decoder Project
+projectDecoder =
+    Decode.succeed Project
+        |> required "uuid" (Decode.maybe Uuid.decoder)
+        |> required "address" (Decode.maybe Decode.string)
+        |> required "cardImageUrl" Decode.string
+        |> required "coverImageUrl" Decode.string
+        |> required "description" Decode.string
+        |> required "duration" Decode.int
+        |> required "goal" Decode.float
+        |> required "projectHash" Decode.string
+        |> required "projectHubUrl" Decode.string
+        |> required "projectVideoUrl" Decode.string
+        |> required "rewards" (Decode.list rewardDecoder)
+        |> hardcoded Published
+        |> required "tagline" Decode.string
+        |> required "title" Decode.string
+
+
+
+-- @TODO: get api url from configuration
+
+
+sendPublishRequest : Project -> Cmd Msg
+sendPublishRequest project =
+    Http.post
+        { url = "https://api.blocos.app/publish-request"
+        , body = Http.jsonBody <| buildPublishRequestBody project
+        , expect = Http.expectJson PublishedProject projectDecoder
+        }
 
 
 update : Msg -> Model -> Nav.Key -> ( Model, Cmd Msg )
@@ -463,6 +536,13 @@ update msg ( project, projects, seed ) navKey =
             ( ( { project | address = Just address, status = Unsaved }, projects, seed ), Cmd.none )
 
         PublishProject ->
+            let
+                updatedProject =
+                    { project | status = Publishing }
+            in
+            ( ( updatedProject, projects, seed ), sendPublishRequest updatedProject )
+
+        PublishedProject _ ->
             ( currentModel, Cmd.none )
 
 
