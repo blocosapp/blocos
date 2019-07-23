@@ -2,11 +2,25 @@ import { default as blockstack, UserSession, AppConfig } from 'blockstack'
 import { getRandomInts } from './seed'
 import { Elm } from '../elm/Main'
 import { startPorts } from './ports'
-import { appConfig } from '../config'
+import { appConfig, apiConfig } from '../config'
 
-function generateFlags (): [number, number[]] {
+type Flags = {
+  apiDomain: string,
+  appDomain: string,
+  seed: number,
+  seedExtension: number[]
+}
+
+function generateFlags (): Flags {
   const seeds = getRandomInts(5)
-  return [seeds[0], seeds.slice(1)]
+  const { apiDomain } = apiConfig
+  const { appDomain } = appConfig
+  return {
+    apiDomain,
+    appDomain,
+    seed: seeds[0],
+    seedExtension: seeds.slice(1)
+  }
 }
 
 function createSession (): UserSession {

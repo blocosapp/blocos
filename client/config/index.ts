@@ -9,3 +9,7 @@ export const appConfig: AppConfig = {
   redirectURI: () => 'http://localhost:8000',
   scopes: ['publish_data']
 }
+
+export const apiConfig = {
+  apiDomain: 'http://localhost:8000'
+}

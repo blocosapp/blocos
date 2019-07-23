@@ -349,10 +349,6 @@ projectDecoder =
         |> required "title" Decode.string
 
 
-
--- @TODO: get api url from configuration
-
-
 sendPublishRequest : Project -> Cmd Msg
 sendPublishRequest project =
     Http.post

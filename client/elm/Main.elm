@@ -32,18 +32,35 @@ main =
 
 
 type alias Flag =
-    ( Int, List Int )
+    { apiDomain : String
+    , appDomain : String
+    , seedExtension : List Int
+    , seed : Int
+    }
+
+
+type alias Configuration =
+    { apiDomain : String
+    , appDomain : String
+    }
 
 
 type alias Model =
-    { page : Router.Page, key : Nav.Key, user : Session.User, projects : Project.Model, sidebar : Skeleton.Model }
+    { configuration : Configuration
+    , key : Nav.Key
+    , page : Router.Page
+    , projects : Project.Model
+    , sidebar : Skeleton.Model
+    , user : Session.User
+    }
 
 
 init : Flag -> Url -> Nav.Key -> ( Model, Cmd Msg )
-init ( seed, seedExtension ) url navKey =
+init { seed, seedExtension, apiDomain, appDomain } url navKey =
     let
         model =
-            { key = navKey
+            { configuration = { apiDomain = apiDomain, appDomain = appDomain }
+            , key = navKey
             , page = Router.route url
             , user = ( Session.Anonymous, Nothing )
             , projects = ( Project.emptyProject, [], initialSeed seed seedExtension )
