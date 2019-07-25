@@ -30,6 +30,7 @@ import Port.Blockstack as Blockstack
 import Prng.Uuid as Uuid
 import Random.Pcg.Extended as Random
 import Session
+import Sha256 exposing (sha256)
 import String
 import Svg
 import Svg.Attributes
@@ -62,7 +63,6 @@ type alias Project =
     , duration : Int
     , goal : Float
     , projectVideoUrl : String
-    , projectHash : String
     , projectHubUrl : String
     , rewards : List Reward
     , status : ProjectStatus
@@ -84,7 +84,6 @@ emptyProject =
     , description = ""
     , duration = 60
     , goal = 0.0
-    , projectHash = ""
     , projectHubUrl = ""
     , projectVideoUrl = ""
     , rewards = []
@@ -118,7 +117,7 @@ type Msg
     | GetCardImageFile String
     | GetCoverImageFile String
     | ProjectDeleted
-    | ProjectSaved Blockstack.ProjectFile
+    | ProjectSaved (Result Decode.Error Project)
     | PublishProject
     | PublishedProject (Result Http.Error Project)
     | SaveProject
@@ -144,50 +143,60 @@ maxNumberOfRewards =
     7
 
 
-parseProjectToFile : Project -> Blockstack.ProjectFile
+encodeReward : Reward -> Encode.Value
+encodeReward reward =
+    Encode.object
+        [ ( "id", Encode.int reward.id )
+        ]
+
+
+parseProjectToFile : Project -> Encode.Value
 parseProjectToFile project =
     let
-        uuidString =
+        encodedUuid =
             case project.uuid of
                 Just uuid ->
-                    Uuid.toString uuid
+                    Uuid.encode uuid
 
                 Nothing ->
-                    ""
+                    Encode.null
+
+        encodedAddress =
+            case project.address of
+                Just address ->
+                    Encode.string address
+
+                Nothing ->
+                    Encode.null
+
+        encodedProjectFields =
+            Encode.object
+                [ ( "uuid", encodedUuid )
+                , ( "address", encodedAddress )
+                , ( "cardImageUrl", Encode.string project.cardImageUrl )
+                , ( "coverImageUrl", Encode.string project.coverImageUrl )
+                , ( "description", Encode.string project.description )
+                , ( "duration", Encode.int project.duration )
+                , ( "goal", Encode.float project.goal )
+                , ( "projectHubUrl", Encode.string project.projectHubUrl )
+                , ( "projectVideoUrl", Encode.string project.projectVideoUrl )
+                , ( "rewards", Encode.list encodeReward project.rewards )
+                , ( "tagline", Encode.string project.tagline )
+                , ( "title", Encode.string project.title )
+                ]
+
+        projectHash =
+            sha256 <| Encode.encode 0 encodedProjectFields
     in
-    { uuid = uuidString
-    , address = project.address
-    , cardImageUrl = project.cardImageUrl
-    , coverImageUrl = project.coverImageUrl
-    , description = project.description
-    , duration = project.duration
-    , goal = project.goal
-    , projectHash = project.projectHash
-    , projectHubUrl = project.projectHubUrl
-    , projectVideoUrl = project.projectVideoUrl
-    , rewards = project.rewards
-    , tagline = project.tagline
-    , title = project.title
-    }
+    Encode.object
+        [ ( "project", encodedProjectFields )
+        , ( "hash", Encode.string projectHash )
+        ]
 
 
-parseFileToProject : Blockstack.ProjectFile -> Project
+parseFileToProject : Encode.Value -> Result Decode.Error Project
 parseFileToProject projectFile =
-    { uuid = Uuid.fromString projectFile.uuid
-    , address = projectFile.address
-    , cardImageUrl = projectFile.cardImageUrl
-    , coverImageUrl = projectFile.coverImageUrl
-    , description = projectFile.description
-    , duration = projectFile.duration
-    , goal = projectFile.goal
-    , projectHash = projectFile.projectHash
-    , projectHubUrl = projectFile.projectHubUrl
-    , projectVideoUrl = projectFile.projectVideoUrl
-    , rewards = projectFile.rewards
-    , status = Saved
-    , tagline = projectFile.tagline
-    , title = projectFile.title
-    }
+    Decode.decodeValue projectDecoder projectFile
 
 
 updateIfProject : Project -> Project -> Project
@@ -287,7 +296,7 @@ redirectToEditPage project navKey =
 subscriptions : Sub Msg
 subscriptions =
     Sub.batch
-        [ Blockstack.fileSaved (\value -> ProjectSaved value)
+        [ Blockstack.fileSaved (\value -> ProjectSaved (Decode.decodeValue projectDecoder value))
         , Blockstack.fileDeleted (\_ -> ProjectDeleted)
         ]
 
@@ -340,7 +349,6 @@ projectDecoder =
         |> required "description" Decode.string
         |> required "duration" Decode.int
         |> required "goal" Decode.float
-        |> required "projectHash" Decode.string
         |> required "projectHubUrl" Decode.string
         |> required "projectVideoUrl" Decode.string
         |> required "rewards" (Decode.list rewardDecoder)
@@ -380,21 +388,24 @@ update msg ( project, projects, seed ) navKey =
             ( ( { projectToSave | status = Saving }, projects, newSeed ), Blockstack.putFile (parseProjectToFile projectToSave) )
 
         ProjectSaved savedProjectFile ->
-            let
-                savedProject =
-                    parseFileToProject savedProjectFile
+            case savedProjectFile of
+                -- @TODO: represent this error in the UI
+                Err _ ->
+                    ( currentModel, Cmd.none )
 
-                updatedProjects =
-                    reconcileProjects projects savedProject
+                Ok savedProject ->
+                    let
+                        updatedProjects =
+                            reconcileProjects projects savedProject
 
-                currentProject =
-                    if savedProject.uuid == project.uuid then
-                        savedProject
+                        currentProject =
+                            if savedProject.uuid == project.uuid then
+                                savedProject
 
-                    else
-                        project
-            in
-            ( ( currentProject, updatedProjects, seed ), Cmd.none )
+                            else
+                                project
+                    in
+                    ( ( currentProject, updatedProjects, seed ), Cmd.none )
 
         ProjectDeleted ->
             ( ( emptyProject, projects, seed ), redirectTo projectListUrl navKey )

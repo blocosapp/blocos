@@ -30,7 +30,6 @@ fakeProject =
     , coverImageUrl = "https://cover.png"
     , duration = 60
     , goal = 10.0
-    , projectHash = ""
     , projectHubUrl = ""
     , projectVideoUrl = "https://video.ytb"
     , rewards = []

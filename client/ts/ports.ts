@@ -10,20 +10,6 @@ type Reward = {
   contribution: number
 }
 
-type Project = {
-  address: string,
-  cardImageUrl: string,
-  coverImageUrl: string,
-  description: string,
-  duration: number,
-  goal: number,
-  projectVideoUrl: string,
-  rewards: Array<Reward>,
-  tagline: string,
-  title: string,
-  uuid: string
-}
-
 export type UserData = {
   username: string;
   email?: string;
@@ -84,54 +70,13 @@ function handleAuthentication (app: App, session: UserSession): void {
   }
 }
 
-function parseRewards (rewards: Array<any>) {
-  return rewards.map(reward => ({
-    id: reward.id || -1,
-    title: reward.title || '',
-    description: reward.description || '',
-    contribution: reward.contribution || 0
-  }))
-}
-
-function parseFile (fileContent: string): Project | null {
-  if (!fileContent) {
-    return null
-  }
-
-  try {
-    const parsedFile = JSON.parse(fileContent)
-    if (!parsedFile.uuid) {
-      return null
-    }
-
-    return {
-      uuid: parsedFile.uuid,
-      address: parsedFile.address || '',
-      description: parsedFile.description || '',
-      duration: parsedFile.duration || 60,
-      goal: typeof parsedFile.goal === 'number' ? parsedFile.goal : 0,
-      title: parsedFile.title || '',
-      cardImageUrl: parsedFile.cardImageUrl || '',
-      coverImageUrl: parsedFile.coverImageUrl || '',
-      projectVideoUrl: parsedFile.projectVideoUrl || '',
-      rewards: parseRewards(parsedFile.rewards || []),
-      tagline: parsedFile.tagline || ''
-    }
-  } catch (error) {
-    console.error(error)
-  }
-}
-
 function fetchFile (app: App, userSession: UserSession): (arg0: string) => boolean {
   return (filePath: string) => {
     userSession
       .getFile(filePath, null)
       .then(savedFile => {
         if (typeof savedFile === 'string') {
-          const parsedFile = parseFile(savedFile)
-          if (parsedFile) {
-            app.ports.fileSaved.send(parsedFile)
-          }
+          app.ports.fileSaved.send(savedFile)
         }
       })
       .catch(console.error)
@@ -146,13 +91,13 @@ function fetchSavedFiles (app: App, user: UserSession): void {
     .catch(console.error)
 }
 
-function subscribeToPutFile (app: App, user: UserSession, fileSaved: (arg0: Project) => void) {
-  app.ports.putFile.subscribe(project => {
-    const fileName = project.uuid
+function subscribeToPutFile (app: App, user: UserSession, fileSaved: (arg0: string) => void) {
+  app.ports.putFile.subscribe(({ project }) => {
     try {
+      const fileName = project.uuid + '.json'
       const fileContent = JSON.stringify(project)
       user
-        .putFile(fileName + '.json', fileContent)
+        .putFile(fileName, fileContent)
         .then(() => fileSaved(project))
         .catch(console.error)
     } catch (e) {
@@ -162,12 +107,16 @@ function subscribeToPutFile (app: App, user: UserSession, fileSaved: (arg0: Proj
 }
 
 function subscribeToDeleteFile (app: App, user: UserSession, fileDeleted: (data: null) => void) {
-  app.ports.deleteFile.subscribe(project => {
-    const fileName = project.uuid + '.json'
-    user
-      .deleteFile(fileName)
-      .then(() => fileDeleted(null))
-      .catch(console.error)
+  app.ports.deleteFile.subscribe(({ project }) => {
+    try {
+      const fileName = project.uuid + '.json'
+      user
+        .deleteFile(fileName)
+        .then(() => fileDeleted(null))
+        .catch(console.error)
+    } catch (error) {
+      console.error(error)
+    }
   })
 }
 
