@@ -43,4 +43,8 @@ cd server && HOST=http://localhost:8000 bin/www
 
 ### Warning
 
-This project is under intense discover process. Don't mind the mess. Soon everything will make sense. :)
+This project is under intense discovery process. Don't mind the mess. Soon everything will make sense. :)
+
+### Contributions
+
+I'm looking for a partner in this project. If for any reason you'd be interested, drop me a line! :)
