@@ -27,7 +27,7 @@ title =
 
 
 view : Session.User -> Project.Model -> Html.Html Project.Msg
-view _ ( _, projects, _ ) =
+view _ { projects } =
     let
         renderCreatedProjects =
             if List.length projects == 0 then

@@ -76,12 +76,22 @@ savingProject =
 
 createProjectView : Html Project.Msg
 createProjectView =
-    Project.createProjectView userMock ( Project.emptyProject, [], seedMock )
+    Project.createProjectView userMock
+        { currentProject = Project.emptyProject
+        , projects = []
+        , projectError = Nothing
+        , seed = seedMock
+        }
 
 
 createProjectViewWithSavingProject : Html Project.Msg
 createProjectViewWithSavingProject =
-    Project.createProjectView userMock ( savingProject, [], seedMock )
+    Project.createProjectView userMock
+        { currentProject = savingProject
+        , projects = []
+        , projectError = Nothing
+        , seed = seedMock
+        }
 
 
 projectTest : Test
@@ -113,7 +123,7 @@ projectTest =
                         List.map (\uuidMock -> projectMocker uuid) uuidMocks
 
                     modelBefore =
-                        ( Project.emptyProject, projects, seedMock )
+                        { currentProject = Project.emptyProject, projects = projects, projectError = Nothing, seed = seedMock }
 
                     uuid =
                         case uuidMocks of
@@ -126,10 +136,10 @@ projectTest =
                     expected =
                         case projects of
                             x :: xs ->
-                                ( x, projects, seedMock )
+                                { currentProject = x, projects = projects, projectError = Nothing, seed = seedMock }
 
                             _ ->
-                                ( Project.emptyProject, [], seedMock )
+                                { currentProject = Project.emptyProject, projects = [], projectError = Nothing, seed = seedMock }
 
                     result =
                         Project.setCurrentProjectByUuidString uuid modelBefore

@@ -2,6 +2,7 @@ module Project exposing
     ( Model
     , Msg(..)
     , Project
+    , ProjectError
     , ProjectStatus(..)
     , createProjectRoute
     , createProjectTitle
@@ -71,8 +72,22 @@ type alias Project =
     }
 
 
+type ProjectErrorStatus
+    = LoadingError
+
+
+type alias ProjectError =
+    { error : ProjectErrorStatus
+    , message : String
+    }
+
+
 type alias Model =
-    ( Project, List Project, Random.Seed )
+    { currentProject : Project
+    , projects : List Project
+    , projectError : Maybe ProjectError
+    , seed : Random.Seed
+    }
 
 
 emptyProject : Project
@@ -243,20 +258,20 @@ getPublishProjectRoute uuid =
 
 
 setCurrentProjectByUuidString : String -> Model -> Model
-setCurrentProjectByUuidString uuidString ( _, projects, seed ) =
+setCurrentProjectByUuidString uuidString model =
     let
         parsedUuid =
             Uuid.fromString uuidString
 
         getProject projectUuid =
-            Maybe.withDefault emptyProject (List.head <| List.filter (\project -> project.uuid == projectUuid) projects)
+            Maybe.withDefault emptyProject (List.head <| List.filter (\project -> project.uuid == projectUuid) model.projects)
     in
     case parsedUuid of
         Just uuid ->
-            ( getProject parsedUuid, projects, seed )
+            { model | currentProject = getProject parsedUuid }
 
         Nothing ->
-            ( emptyProject, projects, seed )
+            { model | currentProject = emptyProject }
 
 
 setUuidIfEmpty : Project -> Random.Seed -> ( Project, Random.Seed )
@@ -366,116 +381,132 @@ sendPublishRequest project =
         }
 
 
+changeProject : Model -> Project -> ( Model, Cmd Msg )
+changeProject model newProject =
+    ( { model | currentProject = newProject }, Cmd.none )
+
+
 update : Msg -> Model -> Nav.Key -> ( Model, Cmd Msg )
-update msg ( project, projects, seed ) navKey =
+update msg model navKey =
     let
-        currentModel =
-            ( project, projects, seed )
+        { currentProject, projects, seed } =
+            model
+
+        updateProjectInModel =
+            changeProject model
     in
     case msg of
         DeleteProject ->
             let
                 updatedProjects =
-                    removeProject projects project
+                    removeProject projects currentProject
             in
-            ( ( project, updatedProjects, seed ), Blockstack.deleteFile (parseProjectToFile project) )
+            ( { model | projects = updatedProjects }, Blockstack.deleteFile (parseProjectToFile currentProject) )
 
         SaveProject ->
             let
                 ( projectToSave, newSeed ) =
-                    setUuidIfEmpty project seed
+                    setUuidIfEmpty currentProject seed
+
+                updatedProject =
+                    { projectToSave | status = Saving }
             in
-            ( ( { projectToSave | status = Saving }, projects, newSeed ), Blockstack.putFile (parseProjectToFile projectToSave) )
+            ( { model | currentProject = updatedProject, seed = newSeed }, Blockstack.putFile (parseProjectToFile projectToSave) )
 
         ProjectSaved savedProjectFile ->
             case savedProjectFile of
-                -- @TODO: represent this error in the UI
-                Err _ ->
-                    ( currentModel, Cmd.none )
+                Err decodeError ->
+                    let
+                        projectError =
+                            { error = LoadingError
+                            , message = Decode.errorToString decodeError
+                            }
+                    in
+                    ( { model | projectError = Just projectError }, Cmd.none )
 
                 Ok savedProject ->
                     let
                         updatedProjects =
                             reconcileProjects projects savedProject
 
-                        currentProject =
-                            if savedProject.uuid == project.uuid then
+                        updatedProject =
+                            if savedProject.uuid == currentProject.uuid then
                                 savedProject
 
                             else
-                                project
+                                currentProject
                     in
-                    ( ( currentProject, updatedProjects, seed ), Cmd.none )
+                    ( { model | currentProject = updatedProject, projects = updatedProjects }, Cmd.none )
 
         ProjectDeleted ->
-            ( ( emptyProject, projects, seed ), redirectTo projectListUrl navKey )
+            ( { model | currentProject = emptyProject }, redirectTo projectListUrl navKey )
 
         EditProject projectToEdit ->
-            ( ( projectToEdit, projects, seed ), Cmd.none )
+            updateProjectInModel projectToEdit
 
         ChangeDescription newDescription ->
-            ( ( { project | description = newDescription, status = Unsaved }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | description = newDescription, status = Unsaved }
 
         ChangeTitle newTitle ->
-            ( ( { project | title = newTitle, status = Unsaved }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | title = newTitle, status = Unsaved }
 
         ChangeTagline newTagline ->
-            ( ( { project | tagline = newTagline, status = Unsaved }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | tagline = newTagline, status = Unsaved }
 
         CardImageSelected file ->
-            ( currentModel, Task.perform GetCardImageFile (File.toUrl file) )
+            ( model, Task.perform GetCardImageFile (File.toUrl file) )
 
         ChangeCardImage ->
-            ( currentModel, selectImage CardImageSelected )
+            ( model, selectImage CardImageSelected )
 
         GetCardImageFile newCardImageUrl ->
-            ( ( { project | cardImageUrl = newCardImageUrl }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | cardImageUrl = newCardImageUrl }
 
         DeleteCardImage ->
-            ( ( { project | cardImageUrl = "" }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | cardImageUrl = "" }
 
         ChangeCoverImage ->
-            ( currentModel, selectImage CoverImageSelected )
+            ( model, selectImage CoverImageSelected )
 
         CoverImageSelected file ->
-            ( currentModel, Task.perform GetCoverImageFile (File.toUrl file) )
+            ( model, Task.perform GetCoverImageFile (File.toUrl file) )
 
         GetCoverImageFile newCoverImageUrl ->
-            ( ( { project | coverImageUrl = newCoverImageUrl }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | coverImageUrl = newCoverImageUrl }
 
         ChangeDuration duration ->
             let
                 projectDuration =
                     Maybe.withDefault 0 <| String.toInt duration
             in
-            ( ( { project | duration = projectDuration }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | duration = projectDuration }
 
         DeleteCoverImage ->
-            ( ( { project | coverImageUrl = "" }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | coverImageUrl = "" }
 
         ChangeProjectVideo newProjectVideoUrl ->
-            ( ( { project | projectVideoUrl = newProjectVideoUrl, status = Unsaved }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | projectVideoUrl = newProjectVideoUrl, status = Unsaved }
 
         AddReward ->
             let
                 emptyReward =
-                    { id = List.length project.rewards + 1, title = "", description = "", contribution = 0 }
+                    { id = List.length currentProject.rewards + 1, title = "", description = "", contribution = 0 }
 
                 rewards =
-                    if List.length project.rewards >= maxNumberOfRewards then
-                        project.rewards
+                    if List.length currentProject.rewards >= maxNumberOfRewards then
+                        currentProject.rewards
 
                     else
-                        updateRewardsIndex <| project.rewards ++ [ emptyReward ]
+                        updateRewardsIndex <| currentProject.rewards ++ [ emptyReward ]
             in
-            ( ( { project | rewards = rewards }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | rewards = rewards }
 
         DeleteReward reward ->
             let
                 updatedRewards =
-                    updateRewardsIndex <| List.filter (\rewardItem -> reward.id /= rewardItem.id) project.rewards
+                    updateRewardsIndex <| List.filter (\rewardItem -> reward.id /= rewardItem.id) currentProject.rewards
             in
-            ( ( { project | rewards = updatedRewards }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | rewards = updatedRewards }
 
         ChangeRewardTitle rewardToUpdate title ->
             let
@@ -487,9 +518,9 @@ update msg ( project, projects, seed ) navKey =
                         reward
 
                 rewards =
-                    List.map updateReward project.rewards
+                    List.map updateReward currentProject.rewards
             in
-            ( ( { project | rewards = rewards }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | rewards = rewards }
 
         ChangeRewardContribution rewardToUpdate maybeContribution ->
             let
@@ -509,9 +540,9 @@ update msg ( project, projects, seed ) navKey =
                         reward
 
                 rewards =
-                    List.map updateReward project.rewards
+                    List.map updateReward currentProject.rewards
             in
-            ( ( { project | rewards = rewards }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | rewards = rewards }
 
         ChangeRewardDescription rewardToUpdate description ->
             let
@@ -523,9 +554,9 @@ update msg ( project, projects, seed ) navKey =
                         reward
 
                 rewards =
-                    List.map updateReward project.rewards
+                    List.map updateReward currentProject.rewards
             in
-            ( ( { project | rewards = rewards }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | rewards = rewards }
 
         ChangeGoal maybeNewGoal ->
             let
@@ -537,20 +568,20 @@ update msg ( project, projects, seed ) navKey =
                         Nothing ->
                             0.0
             in
-            ( ( { project | goal = newGoal, status = Unsaved }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | goal = newGoal, status = Unsaved }
 
         ChangeAddress address ->
-            ( ( { project | address = Just address, status = Unsaved }, projects, seed ), Cmd.none )
+            updateProjectInModel { currentProject | address = Just address, status = Unsaved }
 
         PublishProject ->
             let
                 updatedProject =
-                    { project | status = Publishing }
+                    { currentProject | status = Publishing }
             in
-            ( ( updatedProject, projects, seed ), sendPublishRequest updatedProject )
+            ( { model | currentProject = updatedProject }, sendPublishRequest updatedProject )
 
         PublishedProject _ ->
-            ( currentModel, Cmd.none )
+            ( model, Cmd.none )
 
 
 createProjectRoute : String
@@ -639,7 +670,7 @@ renderImageSelector imageUrl imageSize changeImageCmd deleteImageCmd =
 
 
 createProjectView : Session.User -> Model -> Html.Html Msg
-createProjectView user ( currentProject, _, _ ) =
+createProjectView user { currentProject } =
     let
         username =
             case user of
@@ -850,7 +881,7 @@ createProjectView user ( currentProject, _, _ ) =
 
 
 publishProjectView : Session.User -> Model -> Html.Html Msg
-publishProjectView user ( currentProject, _, _ ) =
+publishProjectView user { currentProject } =
     let
         username =
             case user of

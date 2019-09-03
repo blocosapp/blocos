@@ -63,7 +63,7 @@ init { seed, seedExtension, apiDomain, appDomain } url navKey =
             , key = navKey
             , page = Router.route url
             , user = ( Session.Anonymous, Nothing )
-            , projects = ( Project.emptyProject, [], initialSeed seed seedExtension )
+            , projects = { currentProject = Project.emptyProject, projects = [], projectError = Nothing, seed = initialSeed seed seedExtension }
             , sidebar = Skeleton.Closed
             }
     in
@@ -170,7 +170,7 @@ type Msg
 updatePageModel : Router.Page -> Model -> Model
 updatePageModel page model =
     let
-        ( currentProject, projects, seed ) =
+        { currentProject, projects, seed } =
             model.projects
 
         setProject uuid =
@@ -184,7 +184,7 @@ updatePageModel page model =
             { model | page = page, projects = setProject uuid }
 
         Router.CreateProject ->
-            { model | page = page, projects = ( Project.emptyProject, projects, seed ) }
+            { model | page = page, projects = { currentProject = Project.emptyProject, projects = projects, projectError = Nothing, seed = seed } }
 
         _ ->
             { model | page = page }

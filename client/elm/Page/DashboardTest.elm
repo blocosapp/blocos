@@ -46,7 +46,7 @@ fakeProjectList =
 
 generateDashboardView : Html.Html Project.Msg
 generateDashboardView =
-    Dashboard.view fakeUser ( fakeProject, fakeProjectList, fakeSeed )
+    Dashboard.view fakeUser { currentProject = fakeProject, projects = fakeProjectList, projectError = Nothing, seed = fakeSeed }
 
 
 dashboardTest : Test
